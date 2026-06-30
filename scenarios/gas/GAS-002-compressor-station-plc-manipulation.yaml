@@ -1,0 +1,116 @@
+id: GAS-002
+title: Compressor station PLC manipulation via vendor remote-support tunnel
+version: 1.0.0
+sector: gas
+soci_asset_class: gas
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises the OEM vendor environment supporting compressor
+  stations along a transmission pipeline, abuses the vendor's persistent
+  remote-support tunnel to issue unauthorised commands to a compressor PLC,
+  and either trips the station offline or pushes it into an unsafe operating
+  regime. Pattern is documented in CISA AA22-103A on tools targeting
+  ICS/SCADA devices and in Dragos and Mandiant pipeline-sector reports.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1199
+      name: Trusted Relationship
+    - id: T0855
+      name: Unauthorized Command Message
+    - id: T0831
+      name: Manipulation of Control
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Capable adversary targeting an ICS OEM
+    scannable: true
+    criticality: low
+
+  - id: oem_vendor_environment
+    type: vendor_asset
+    description: OEM's compressor-control vendor environment
+    scannable: false
+    reason_unscannable: third_party_no_access
+    criticality: high
+
+  - id: compressor_station_gateway
+    type: ot_asset
+    description: Gateway speaking ICS protocols to compressor controls
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: high
+
+  - id: compressor_plc
+    type: ot_asset
+    description: PLC controlling a single compressor unit
+    scannable: false
+    reason_unscannable: safety_critical_air_gapped
+    criticality: critical
+    consequence_type: physical_safety
+
+edges:
+  - from: external_attacker
+    to: oem_vendor_environment
+    technique: T1199
+    detection_difficulty: very_high
+
+  - from: oem_vendor_environment
+    to: compressor_station_gateway
+    technique: T1199
+    detection_difficulty: very_high
+
+  - from: compressor_station_gateway
+    to: compressor_plc
+    technique: T0855
+    detection_difficulty: very_high
+    notes: Command appears legitimate; protocol authentication often weak
+
+likelihood:
+  annual_frequency:
+    min: 0.0005
+    mode: 0.008
+    max: 0.04
+  rationale: >
+    Low base rate per disclosed incidents; supply-chain compromise of
+    OT vendors is high-capability. Mode reflects post-2022 elevated
+    targeting per CISA, ACSC, and Dragos pipeline-sector reports.
+
+loss_magnitude:
+  primary_response:
+    min: 1000000
+    mode: 5000000
+    max: 30000000
+  secondary_response:
+    min: 5000000
+    mode: 60000000
+    max: 1000000000
+    notes: Pipeline pressure event, possible rupture, environmental damage, loss of life with coronial inquiry
+  currency: AUD
+
+controls_suggested:
+  - id: CIRMP-CYBER-12
+    name: Vendor remote-access logging and two-person time-bound approval
+    framework: SOCI-CIRMP
+  - id: AESCSF-SP-01
+    name: Supply-chain risk assessment for OT vendors
+    framework: AESCSF
+  - id: PR.AC-3
+    name: Remote access is managed
+    framework: NIST-CSF
+
+references:
+  - "CISA advisory AA22-103A: APT cyber tools targeting ICS/SCADA devices"
+  - "Dragos OT Cybersecurity Year in Review 2024-2025"
+  - "Mandiant ICS threat reports"
+  - "AESCSF v1, AEMO (applied by analogy to gas operators)"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, gas asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

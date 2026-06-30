@@ -1,0 +1,116 @@
+id: POR-008
+title: DDoS and protocol abuse against terminal gate system halting truck flow
+version: 1.0.0
+sector: ports
+soci_asset_class: ports
+classification: TLP:CLEAR
+
+summary: >
+  An attacker uses a DDoS attack combined with targeted protocol abuse to
+  bring down the truck-gate system at a major container terminal. Truck
+  flow stops, road queues form, and yard storage capacity saturates within
+  hours. Pattern reflects the documented DDoS-for-extortion campaigns
+  observed in AU and globally 2022-2025 and the cascading capacity
+  problems at port-yard scale.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1498
+      name: Network Denial of Service
+    - id: T1499
+      name: Endpoint Denial of Service
+    - id: T0815
+      name: Denial of View
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: DDoS-for-extortion actor
+    scannable: true
+    criticality: low
+
+  - id: gate_system_public_endpoints
+    type: it_asset
+    description: Public-facing booking and gate management endpoints
+    scannable: true
+    criticality: high
+    consequence_type: availability
+
+  - id: gate_system_backend
+    type: it_asset
+    description: Gate-system backend integrated with TOS
+    scannable: true
+    criticality: high
+    consequence_type: availability
+
+  - id: truck_flow_operation
+    type: ot_asset
+    description: Gate-in / gate-out truck movement
+    scannable: false
+    reason_unscannable: operational_disruption_risk
+    criticality: critical
+    consequence_type: availability
+
+edges:
+  - from: external_attacker
+    to: gate_system_public_endpoints
+    technique: T1498
+    detection_difficulty: low
+
+  - from: gate_system_public_endpoints
+    to: gate_system_backend
+    technique: T1499
+    detection_difficulty: low
+
+  - from: gate_system_backend
+    to: truck_flow_operation
+    technique: T0815
+    detection_difficulty: very_low
+
+likelihood:
+  annual_frequency:
+    min: 0.05
+    mode: 0.20
+    max: 0.50
+  rationale: >
+    DDoS activity against AU operators is near-continuous; ACSC reports +280%
+    increase 2024-25. Mode reflects the likelihood that any one major AU
+    terminal experiences a successful and impactful event in a 12-month
+    window.
+
+loss_magnitude:
+  primary_response:
+    min: 250000
+    mode: 1200000
+    max: 5000000
+  secondary_response:
+    min: 750000
+    mode: 12000000
+    max: 150000000
+    notes: Trucker compensation, yard congestion knock-on, vessel discharge delay, possible exporter perishable losses
+  currency: AUD
+
+controls_suggested:
+  - id: PR.PT-5
+    name: Mechanisms to achieve resilience including DDoS protection
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-9
+    name: Tested business continuity plan including paper-based gate fallback
+    framework: SOCI-CIRMP
+  - id: PR.AC-7
+    name: Strong authentication on gate-system access
+    framework: NIST-CSF
+
+references:
+  - "ACSC, Annual Cyber Threat Report 2024-25 — DDoS"
+  - "ENISA Port Cybersecurity"
+  - "DP World Australia incident, November 2023 — public disclosures on gate impact"
+  - "Cloudflare and Akamai threat reports on DDoS trends 2024-2025"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, ports asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

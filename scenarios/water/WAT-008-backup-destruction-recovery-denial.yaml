@@ -1,0 +1,128 @@
+id: WAT-008
+title: Backup-system destruction denying recovery from concurrent ransomware
+version: 1.0.0
+sector: water
+soci_asset_class: water_and_sewerage
+classification: TLP:CLEAR
+
+summary: >
+  Prior to encrypting production systems, an attacker discovers and destroys
+  the utility's backup repositories — including immutable-claimed cloud
+  copies — by abusing backup-software administrator credentials. The
+  ransomware deployment that follows therefore cannot be remediated from
+  backup. Pattern documented in CISA AA22-249A on Vice Society and in
+  Veeam, Rubrik, and Commvault advisories on backup-targeting in 2023-2025.
+
+mitre_attack:
+  tactics: [TA0040, TA0005]
+  techniques:
+    - id: T1490
+      name: Inhibit System Recovery
+    - id: T1485
+      name: Data Destruction
+    - id: T1486
+      name: Data Encrypted for Impact
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Ransomware actor with backup-targeting playbook
+    scannable: true
+    criticality: low
+
+  - id: compromised_domain_admin
+    type: it_asset
+    description: Compromised Domain Admin or backup-administrator account
+    scannable: true
+    criticality: critical
+
+  - id: backup_server
+    type: it_asset
+    description: On-premise backup orchestrator (Veeam, Commvault, Rubrik)
+    scannable: true
+    criticality: critical
+    consequence_type: availability
+
+  - id: backup_storage_immutable
+    type: data_store
+    description: Claimed-immutable cloud backup repository
+    scannable: true
+    criticality: critical
+    consequence_type: availability
+
+  - id: production_servers
+    type: it_asset
+    description: Production billing, GIS, asset management, EMR-equivalent systems
+    scannable: true
+    criticality: critical
+    consequence_type: availability
+
+edges:
+  - from: external_attacker
+    to: compromised_domain_admin
+    technique: T1490
+    detection_difficulty: high
+    notes: Credentials harvested from earlier intrusion stage
+
+  - from: compromised_domain_admin
+    to: backup_server
+    technique: T1485
+    detection_difficulty: medium
+
+  - from: backup_server
+    to: backup_storage_immutable
+    technique: T1485
+    detection_difficulty: high
+    notes: Misconfigured immutability or shared retention policy allows deletion
+
+  - from: external_attacker
+    to: production_servers
+    technique: T1486
+    detection_difficulty: low
+
+likelihood:
+  annual_frequency:
+    min: 0.02
+    mode: 0.08
+    max: 0.30
+  rationale: >
+    Backup-targeting is a standard tactic in commodity ransomware playbooks
+    as of 2024-2025 per Mandiant M-Trends. Mode reflects the subset of
+    ransomware incidents where backups were demonstrably destroyed, against
+    the base rate of enterprise ransomware in AU water (WAT-002).
+
+loss_magnitude:
+  primary_response:
+    min: 500000
+    mode: 3500000
+    max: 20000000
+  secondary_response:
+    min: 1500000
+    mode: 18000000
+    max: 200000000
+    notes: Extended downtime, possible ransom payment, customer impact, regulator inquiry under SOCI enforcement
+  currency: AUD
+
+controls_suggested:
+  - id: E8-BACKUPS
+    name: Daily backups with offline copy and tested recovery
+    framework: Essential-Eight
+  - id: PR.IP-4
+    name: Backups conducted, maintained, and tested
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-9
+    name: Tested incident response and business continuity plan
+    framework: SOCI-CIRMP
+
+references:
+  - "CISA advisory AA22-249A: Vice Society targeting backups"
+  - "Veeam Threat Center reports on backup-targeting ransomware 2023-2025"
+  - "Mandiant M-Trends 2025 — destruction tactics"
+  - "ACSC, Annual Cyber Threat Report 2024-25 — ransomware"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, water and sewerage asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

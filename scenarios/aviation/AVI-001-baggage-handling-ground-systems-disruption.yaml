@@ -1,0 +1,135 @@
+id: AVI-001
+title: Baggage handling and ground systems disruption via shared IT services
+version: 1.0.0
+sector: aviation
+soci_asset_class: aviation
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises an airport's shared IT services environment, which
+  hosts identity, file shares, and middleware used by airline ground handlers
+  and baggage-handling-system (BHS) operators. The result is multi-airline
+  ground-stop conditions even though no aviation-specific safety system is
+  directly compromised. Pattern is consistent with disruptions seen at major
+  international airports from common ground-systems outages and ransomware
+  events affecting shared airport IT.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T1486
+      name: Data Encrypted for Impact
+    - id: T0815
+      name: Denial of View
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Adversary targeting public-facing airport services
+    scannable: true
+    criticality: low
+
+  - id: shared_airport_it
+    type: it_asset
+    description: Airport-managed identity, DNS, file share, middleware
+    scannable: true
+    criticality: critical
+    consequence_type: availability
+
+  - id: airline_ground_handler_workstation
+    type: it_asset
+    description: Workstations used by ground handlers for check-in, boarding, load planning
+    scannable: true
+    criticality: high
+    consequence_type: availability
+
+  - id: bhs_control_system
+    type: ot_asset
+    description: Baggage Handling System control PCs and PLCs, depends on shared file shares for sort plans
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: high
+    consequence_type: availability
+
+  - id: turnaround_operations
+    type: ot_asset
+    description: Apron turnaround coordination, depends on airport IT for messaging and planning
+    scannable: false
+    reason_unscannable: operational_disruption_risk
+    criticality: critical
+    consequence_type: availability
+
+edges:
+  - from: external_attacker
+    to: shared_airport_it
+    technique: T1190
+    detection_difficulty: medium
+    notes: Edge appliance or web application vulnerability
+
+  - from: shared_airport_it
+    to: airline_ground_handler_workstation
+    technique: T1486
+    detection_difficulty: low
+    notes: Ground handlers cannot authenticate or access shared services
+
+  - from: shared_airport_it
+    to: bhs_control_system
+    technique: T0815
+    detection_difficulty: very_low
+    notes: Sort plans cannot be loaded; bags accumulate at carousels and tilt trays
+
+  - from: shared_airport_it
+    to: turnaround_operations
+    technique: T0815
+    detection_difficulty: very_low
+    notes: Cross-airline turnaround coordination breaks; flights delayed or cancelled
+
+likelihood:
+  annual_frequency:
+    min: 0.01
+    mode: 0.07
+    max: 0.25
+  rationale: >
+    AU has a small number of SOCI-regulated airports but each is a high-profile
+    target. Frequency anchored to global pattern of airport IT outages (both
+    malicious and accidental) requiring full ground-stops; mode reflects the
+    annualised likelihood that any one AU airport sees an event of this
+    severity.
+
+loss_magnitude:
+  primary_response:
+    min: 1500000
+    mode: 8000000
+    max: 40000000
+    notes: Incident response, surge ground staff, manual baggage handling, customer support
+  secondary_response:
+    min: 5000000
+    mode: 60000000
+    max: 600000000
+    notes: Airline EU261 / consumer law compensation, contract penalties to airlines, brand damage, parliamentary scrutiny, regulator action
+  currency: AUD
+
+controls_suggested:
+  - id: PR.PT-5
+    name: Mechanisms to achieve resilience requirements in normal and adverse situations
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-9
+    name: Tested incident response and business continuity plan
+    framework: SOCI-CIRMP
+  - id: E8-MFA
+    name: Multi-factor authentication for privileged and remote access
+    framework: Essential-Eight
+
+references:
+  - "ACSC and Office of Transport Security joint guidance on aviation cyber"
+  - "ENISA Threat Landscape — Transport Sector, latest edition"
+  - "IATA Aviation Cyber Security Strategy 2.0"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, aviation asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

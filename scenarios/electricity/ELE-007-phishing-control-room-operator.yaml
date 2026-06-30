@@ -1,0 +1,124 @@
+id: ELE-007
+title: Spear-phishing of control-room operator leading to OT-network access
+version: 1.0.0
+sector: electricity
+soci_asset_class: electricity
+classification: TLP:CLEAR
+
+summary: >
+  A targeted spear-phishing campaign aimed at named control-room operators
+  delivers a credential-harvesting page or a remote-access trojan. The
+  attacker obtains operator credentials and uses them through the engineering
+  remote-access pathway to reach the control network. Differs from ELE-001
+  in that this targets human operators directly via socially-engineered
+  bait — common AU energy-sector incidents 2022-2025 used this vector.
+
+mitre_attack:
+  tactics: [TA0001, TA0008]
+  techniques:
+    - id: T1566.001
+      name: Spearphishing Attachment
+    - id: T1078
+      name: Valid Accounts
+    - id: T1133
+      name: External Remote Services
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Adversary with sector-specific reconnaissance capability
+    scannable: true
+    criticality: low
+
+  - id: operator_email_account
+    type: it_asset
+    description: Control-room operator's corporate email account
+    scannable: true
+    criticality: medium
+
+  - id: operator_workstation
+    type: it_asset
+    description: Corporate workstation used by the operator
+    scannable: true
+    criticality: medium
+
+  - id: engineering_remote_access
+    type: it_asset
+    description: Remote-access pathway authorised for control-room operators
+    scannable: true
+    criticality: high
+
+  - id: control_network_scada
+    type: ot_asset
+    description: SCADA in the operator's control network
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: critical
+    consequence_type: integrity
+
+edges:
+  - from: external_attacker
+    to: operator_email_account
+    technique: T1566.001
+    detection_difficulty: medium
+    notes: Targeted lure referencing AEMO, AER, or sector-association communications
+
+  - from: operator_email_account
+    to: operator_workstation
+    technique: T1078
+    detection_difficulty: medium
+
+  - from: operator_workstation
+    to: engineering_remote_access
+    technique: T1133
+    detection_difficulty: high
+
+  - from: engineering_remote_access
+    to: control_network_scada
+    technique: T1078
+    detection_difficulty: high
+
+likelihood:
+  annual_frequency:
+    min: 0.03
+    mode: 0.12
+    max: 0.40
+  rationale: >
+    Targeted phishing of named operators is well-documented across AU energy
+    operators since 2022. Mode reflects sector-wide base rate; max reflects
+    operators with limited security training programmes.
+
+loss_magnitude:
+  primary_response:
+    min: 250000
+    mode: 1500000
+    max: 8000000
+  secondary_response:
+    min: 750000
+    mode: 12000000
+    max: 100000000
+  currency: AUD
+
+controls_suggested:
+  - id: E8-MFA
+    name: Phishing-resistant MFA on operator remote access
+    framework: Essential-Eight
+  - id: PR.AT-1
+    name: All users informed and trained
+    framework: NIST-CSF
+  - id: AESCSF-AC-04
+    name: Privileged access management on engineering remote access
+    framework: AESCSF
+
+references:
+  - "ASD/ACSC, Annual Cyber Threat Report 2024-25 — phishing and BEC"
+  - "AESCSF v1, AEMO"
+  - "Mandiant M-Trends 2025 — energy sector initial access"
+  - "CISA advisory AA23-263A and successors on energy-sector intrusions"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, electricity asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

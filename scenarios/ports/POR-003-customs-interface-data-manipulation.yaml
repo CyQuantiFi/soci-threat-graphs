@@ -1,0 +1,116 @@
+id: POR-003
+title: Customs interface data manipulation enabling cargo misrouting
+version: 1.0.0
+sector: ports
+soci_asset_class: ports
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises the operator's customs-interface system that
+  communicates with the Australian Border Force Integrated Cargo System
+  (ICS), and manipulates cargo declarations or release authorisations
+  to misroute containers — either for smuggling or to disrupt
+  legitimate cargo flow. Pattern documented in the 2011-2013 Port of
+  Antwerp cocaine-smuggling intrusion and ongoing concern in maritime
+  cyber threat reports.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T1078
+      name: Valid Accounts
+    - id: T1565
+      name: Data Manipulation
+
+nodes:
+  - id: organised_crime
+    type: external
+    description: Organised crime actor with cyber-enabled smuggling motive
+    scannable: true
+    criticality: low
+
+  - id: customs_interface_gateway
+    type: it_asset
+    description: Operator's customs-interface gateway to ABF Integrated Cargo System
+    scannable: true
+    criticality: critical
+    consequence_type: integrity
+
+  - id: terminal_operating_system
+    type: it_asset
+    description: Terminal Operating System driving container movements
+    scannable: true
+    criticality: critical
+    consequence_type: integrity
+
+  - id: container_release_workflow
+    type: it_asset
+    description: Container release authorisation workflow
+    scannable: true
+    criticality: high
+    consequence_type: integrity
+
+edges:
+  - from: organised_crime
+    to: customs_interface_gateway
+    technique: T1190
+    detection_difficulty: medium
+
+  - from: customs_interface_gateway
+    to: terminal_operating_system
+    technique: T1078
+    detection_difficulty: high
+
+  - from: terminal_operating_system
+    to: container_release_workflow
+    technique: T1565
+    detection_difficulty: very_high
+    notes: Misroute specific containers; small-volume tampering below review thresholds
+
+likelihood:
+  annual_frequency:
+    min: 0.005
+    mode: 0.04
+    max: 0.15
+  rationale: >
+    Organised-crime cyber-enabled smuggling has clear documented precedent
+    at multiple international ports. Mode reflects the AU border-protection
+    threat environment per ABF and AFP publications.
+
+loss_magnitude:
+  primary_response:
+    min: 500000
+    mode: 3000000
+    max: 15000000
+  secondary_response:
+    min: 1500000
+    mode: 25000000
+    max: 300000000
+    notes: ABF, AFP and AGD investigation, possible loss of customs trusted-trader status, reputational damage
+  currency: AUD
+
+controls_suggested:
+  - id: PR.DS-6
+    name: Integrity checking on customs-interface transactions
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-7
+    name: Two-person rule for container release authorisations on flagged shipments
+    framework: SOCI-CIRMP
+  - id: PR.AC-7
+    name: Strong authentication on customs-interface accounts
+    framework: NIST-CSF
+
+references:
+  - "Port of Antwerp cocaine-smuggling intrusion, 2011-2013"
+  - "Department of Home Affairs, Trusted Trader programme and ICS guidance"
+  - "Australian Border Force publications"
+  - "ENISA Threat Landscape — Transport Sector"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, ports asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

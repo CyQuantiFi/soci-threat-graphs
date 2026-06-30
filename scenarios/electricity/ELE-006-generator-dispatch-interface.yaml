@@ -1,0 +1,119 @@
+id: ELE-006
+title: Generator dispatch and market-bidding interface compromise
+version: 1.0.0
+sector: electricity
+soci_asset_class: electricity
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises a generation company's bidding and dispatch
+  interface to AEMO — the system that submits offers into the National
+  Electricity Market and receives dispatch instructions. Tampering with
+  bids or dispatch responses can disrupt market clearing, lose the
+  operator revenue, or introduce system-security concerns when responses
+  diverge from instructions. Anchored to AEMO's documented concerns
+  about cyber risk to market-facing systems and AESCSF market-interface
+  controls.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T1565
+      name: Data Manipulation
+    - id: T1078
+      name: Valid Accounts
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Capable adversary, possibly with market-fraud motive
+    scannable: true
+    criticality: low
+
+  - id: market_interface_gateway
+    type: it_asset
+    description: Generator's bidding and dispatch gateway to AEMO
+    scannable: true
+    criticality: critical
+    consequence_type: integrity
+
+  - id: bid_management_application
+    type: it_asset
+    description: Internal bid-management application authoring offers
+    scannable: true
+    criticality: high
+    consequence_type: integrity
+
+  - id: dispatch_response_controller
+    type: ot_asset
+    description: Plant controller acting on dispatch instructions
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: critical
+    consequence_type: availability
+
+edges:
+  - from: external_attacker
+    to: market_interface_gateway
+    technique: T1190
+    detection_difficulty: medium
+
+  - from: market_interface_gateway
+    to: bid_management_application
+    technique: T1078
+    detection_difficulty: high
+
+  - from: bid_management_application
+    to: dispatch_response_controller
+    technique: T1565
+    detection_difficulty: very_high
+    notes: Subtle tampering with dispatch acknowledgements
+
+likelihood:
+  annual_frequency:
+    min: 0.001
+    mode: 0.015
+    max: 0.07
+  rationale: >
+    AEMO and AER attribute few incidents to market-facing systems publicly,
+    but cyber risk to market interfaces is consistently identified in NEM
+    Security and ENA reports. Mode reflects post-2022 elevated targeting
+    of market-facing systems by financially motivated actors.
+
+loss_magnitude:
+  primary_response:
+    min: 500000
+    mode: 2500000
+    max: 12000000
+  secondary_response:
+    min: 1500000
+    mode: 20000000
+    max: 250000000
+    notes: NEM market impact, AEMO and AER inquiry, market-conduct investigation, possible loss of generator licence
+  currency: AUD
+
+controls_suggested:
+  - id: AESCSF-MK-01
+    name: Market-interface integrity controls per AEMO guidance
+    framework: AESCSF
+  - id: PR.DS-6
+    name: Integrity checking mechanisms for market submissions
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-7
+    name: Two-person rule for bid release
+    framework: SOCI-CIRMP
+
+references:
+  - "AEMO Power System Security Cyber Resilience publications"
+  - "AESCSF v1, AEMO — market interface control area"
+  - "AER and Essential Services Commission market-conduct guidance"
+  - "ENISA Threat Landscape for the Energy Sector"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, electricity asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

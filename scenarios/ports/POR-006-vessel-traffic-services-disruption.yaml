@@ -1,0 +1,115 @@
+id: POR-006
+title: Vessel Traffic Services disruption causing navigation safety incident
+version: 1.0.0
+sector: ports
+soci_asset_class: ports
+classification: TLP:CLEAR
+
+summary: >
+  An attacker disrupts the Vessel Traffic Services (VTS) system used to
+  coordinate vessel movements in a port's approaches and confined waters,
+  either by ransomware or targeted protocol abuse on the VTS data feeds
+  (AIS, radar, VHF). Loss of VTS situational awareness forces ships to
+  rely on visual and direct radio coordination, raising collision and
+  grounding risk. Pattern reflects ENISA and IMO-Maritime-Cyber Risk
+  Management guidance on VTS as a high-consequence target.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T1486
+      name: Data Encrypted for Impact
+    - id: T1565
+      name: Data Manipulation
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Adversary with maritime-systems capability
+    scannable: true
+    criticality: low
+
+  - id: vts_workstation
+    type: it_asset
+    description: VTS operator workstation
+    scannable: true
+    criticality: high
+
+  - id: vts_data_processing
+    type: it_asset
+    description: VTS data-processing servers ingesting AIS, radar, VHF
+    scannable: true
+    criticality: critical
+    consequence_type: availability
+
+  - id: vessel_traffic_picture
+    type: it_asset
+    description: Composite traffic picture relied on by operators
+    scannable: true
+    criticality: critical
+    consequence_type: integrity
+
+edges:
+  - from: external_attacker
+    to: vts_workstation
+    technique: T1190
+    detection_difficulty: medium
+
+  - from: vts_workstation
+    to: vts_data_processing
+    technique: T1486
+    detection_difficulty: low
+
+  - from: vts_data_processing
+    to: vessel_traffic_picture
+    technique: T1565
+    detection_difficulty: high
+    notes: Tampering or denial of the operator's situational awareness
+
+likelihood:
+  annual_frequency:
+    min: 0.001
+    mode: 0.012
+    max: 0.06
+  rationale: >
+    VTS disruption is rare per disclosed incidents but consequence is
+    safety-critical. Mode reflects post-2022 increased state-actor
+    targeting of maritime infrastructure per CISA and ENISA reports.
+
+loss_magnitude:
+  primary_response:
+    min: 500000
+    mode: 3000000
+    max: 15000000
+  secondary_response:
+    min: 2000000
+    mode: 50000000
+    max: 1000000000
+    notes: Possible collision or grounding with environmental damage, loss of life, AMSA and coronial inquiry
+  currency: AUD
+
+controls_suggested:
+  - id: CIRMP-CYBER-9
+    name: Tested incident response and manual fallback procedures for VTS
+    framework: SOCI-CIRMP
+  - id: PR.IP-4
+    name: Backups and recovery for VTS infrastructure
+    framework: NIST-CSF
+  - id: PR.AC-7
+    name: Strong authentication on VTS operator accounts
+    framework: NIST-CSF
+
+references:
+  - "IMO MSC.428(98) Maritime Cyber Risk Management in Safety Management Systems"
+  - "ENISA Port Cybersecurity"
+  - "AMSA Vessel Traffic Services regulations"
+  - "IALA Recommendation V-128 on Vessel Traffic Services"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, ports asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

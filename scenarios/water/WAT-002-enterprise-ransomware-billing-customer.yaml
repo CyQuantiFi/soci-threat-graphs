@@ -1,0 +1,146 @@
+id: WAT-002
+title: Enterprise ransomware halting billing, customer service, and asset management
+version: 1.0.0
+sector: water
+soci_asset_class: water_and_sewerage
+classification: TLP:CLEAR
+
+summary: >
+  Ransomware encrypts the utility's enterprise IT systems — billing, customer
+  service, asset management, GIS, and the corporate file shares used to issue
+  work orders. SCADA continues to run because of network segmentation, but
+  the operator loses the ability to invoice, respond to customer outages, or
+  dispatch field crews to confirmed faults. The South Staffs Water / Clop
+  incident in 2022, the Aliquippa Pennsylvania water authority intrusion in
+  2023, and multiple disclosed AU local-government water incidents show the
+  pattern is credible for AU water operators of all sizes.
+
+mitre_attack:
+  tactics: [TA0001, TA0008, TA0040]
+  techniques:
+    - id: T1566
+      name: Phishing
+    - id: T1486
+      name: Data Encrypted for Impact
+    - id: T1490
+      name: Inhibit System Recovery
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Ransomware-as-a-service affiliate
+    scannable: true
+    criticality: low
+
+  - id: corporate_user_endpoint
+    type: it_asset
+    description: Office workstation belonging to a billing, customer-service, or asset-management staff member
+    scannable: true
+    criticality: medium
+
+  - id: enterprise_file_share
+    type: data_store
+    description: Corporate file shares hosting work orders, asset registers, drawings
+    scannable: true
+    criticality: high
+    consequence_type: availability
+
+  - id: billing_crm_system
+    type: it_asset
+    description: Customer billing and CRM, links to bank gateway and meter-reading data
+    scannable: true
+    criticality: high
+    consequence_type: availability
+
+  - id: gis_asset_management
+    type: it_asset
+    description: GIS and asset-management platform used to dispatch field crews
+    scannable: true
+    criticality: high
+    consequence_type: availability
+
+  - id: customer_pii_database
+    type: data_store
+    description: Customer PII including addresses, concession details, payment info
+    scannable: true
+    criticality: high
+    consequence_type: confidentiality
+
+edges:
+  - from: external_attacker
+    to: corporate_user_endpoint
+    technique: T1566
+    detection_difficulty: medium
+    notes: Phishing email with malicious attachment or credential-harvesting link
+
+  - from: corporate_user_endpoint
+    to: enterprise_file_share
+    technique: T1486
+    detection_difficulty: low
+
+  - from: corporate_user_endpoint
+    to: billing_crm_system
+    technique: T1486
+    detection_difficulty: low
+
+  - from: corporate_user_endpoint
+    to: gis_asset_management
+    technique: T1486
+    detection_difficulty: low
+
+  - from: billing_crm_system
+    to: customer_pii_database
+    technique: T1490
+    detection_difficulty: low
+    notes: Exfil prior to encryption; double-extortion model
+
+likelihood:
+  annual_frequency:
+    min: 0.04
+    mode: 0.15
+    max: 0.45
+  rationale: >
+    Enterprise-IT ransomware is the highest-frequency cyber loss event for AU
+    utilities of any size. Mode reflects the observed base rate across AU
+    council-owned and SOCI-regulated water entities 2022-2025; max reflects
+    smaller water operators with limited security staffing.
+
+loss_magnitude:
+  primary_response:
+    min: 200000
+    mode: 1500000
+    max: 8000000
+    notes: Incident response, rebuild, surge billing staff, customer hotline
+  secondary_response:
+    min: 500000
+    mode: 6000000
+    max: 50000000
+    notes: OAIC notifiable data breach, late-payment customer impact, regulatory inquiry, brand damage, class action exposure under Privacy Act amendments
+  currency: AUD
+
+controls_suggested:
+  - id: E8-MFA
+    name: Multi-factor authentication for all internet-facing accounts
+    framework: Essential-Eight
+  - id: E8-BACKUPS
+    name: Daily backups with offline copy and tested recovery
+    framework: Essential-Eight
+  - id: PR.DS-1
+    name: Data-at-rest protection including offline backups
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-9
+    name: Tested incident response and business continuity plan
+    framework: SOCI-CIRMP
+
+references:
+  - "South Staffs Water / Clop ransomware incident, August 2022"
+  - "Municipal Water Authority of Aliquippa intrusion, November 2023 — CISA and FBI joint statements"
+  - "ACSC, Annual Cyber Threat Report 2024-25 — ransomware section"
+  - "OAIC, Notifiable Data Breaches reports 2022 H1 through 2025 H2"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, water and sewerage asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

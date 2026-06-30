@@ -1,0 +1,117 @@
+id: HLT-004
+title: Infusion-pump IoMT compromise enabling unsafe medication delivery
+version: 1.0.0
+sector: healthcare
+soci_asset_class: health_care_and_medical
+classification: TLP:CLEAR
+
+summary: >
+  An attacker exploits a known vulnerability in a network-connected infusion
+  pump or its associated drug library management server. The exploit could
+  allow alteration of dose limits, suppression of alarms, or denial of
+  delivery. Pattern reflects multiple FDA and TGA medical-device
+  cybersecurity advisories on infusion pumps and the broader IoMT-security
+  research base.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T0836
+      name: Modify Parameter
+    - id: T0809
+      name: Block Reporting Message
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Adversary with IoMT-targeting capability
+    scannable: true
+    criticality: low
+
+  - id: drug_library_management_server
+    type: it_asset
+    description: Server managing drug libraries pushed to infusion pumps
+    scannable: true
+    criticality: critical
+    consequence_type: integrity
+
+  - id: pump_population
+    type: iot_asset
+    description: Networked infusion pumps across hospital wards
+    scannable: false
+    reason_unscannable: embedded_constrained_device
+    criticality: critical
+    consequence_type: physical_safety
+
+  - id: medication_delivery_workflow
+    type: ot_asset
+    description: Clinical medication administration workflow
+    scannable: false
+    reason_unscannable: operational_disruption_risk
+    criticality: critical
+    consequence_type: physical_safety
+
+edges:
+  - from: external_attacker
+    to: drug_library_management_server
+    technique: T1190
+    detection_difficulty: medium
+
+  - from: drug_library_management_server
+    to: pump_population
+    technique: T0836
+    detection_difficulty: very_high
+
+  - from: pump_population
+    to: medication_delivery_workflow
+    technique: T0809
+    detection_difficulty: very_high
+
+likelihood:
+  annual_frequency:
+    min: 0.0005
+    mode: 0.01
+    max: 0.05
+  rationale: >
+    Direct attacks on patient-treatment IoMT are rare per disclosed AU
+    incidents but FDA and TGA advisories show consistent vulnerability
+    discovery. Mode reflects the post-2022 elevated targeting of healthcare
+    OT/IoMT per CISA and HC3 advisories.
+
+loss_magnitude:
+  primary_response:
+    min: 500000
+    mode: 3000000
+    max: 15000000
+  secondary_response:
+    min: 2000000
+    mode: 50000000
+    max: 1000000000
+    notes: Possible patient-safety event with loss of life, TGA investigation, coronial inquiry, civil and possible criminal liability
+  currency: AUD
+
+controls_suggested:
+  - id: PR.AC-5
+    name: Network segmentation isolating IoMT devices
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-8
+    name: Compensating controls for unscannable medical devices
+    framework: SOCI-CIRMP
+  - id: PR.DS-6
+    name: Integrity checking on drug-library updates
+    framework: NIST-CSF
+
+references:
+  - "TGA Medical Device Cybersecurity Guidance"
+  - "FDA Postmarket Management of Cybersecurity in Medical Devices"
+  - "HC3 (US HHS) infusion-pump and IoMT advisories"
+  - "ACSC, Annual Cyber Threat Report 2024-25 — health sector"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, health care and medical asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

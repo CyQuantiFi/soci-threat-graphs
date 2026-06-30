@@ -1,0 +1,137 @@
+id: WAT-001
+title: SCADA compromise via engineering workstation pivot
+version: 1.0.0
+sector: water
+soci_asset_class: water_and_sewerage
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises an internet-exposed engineering workstation used by
+  control engineers, pivots into the SCADA HMI over a dual-homed jump host,
+  and issues unauthorised commands to a PLC controlling chemical dosing at a
+  water treatment plant. The pattern is documented across multiple public
+  incidents including the 2021 Oldsmar (Florida) water-plant intrusion and is
+  consistent with CISA advisory AA21-287A on ongoing threats to US water
+  utilities. The corresponding pattern is credible for AU operators given
+  shared vendor stacks and similar operational architectures.
+
+mitre_attack:
+  tactics: [TA0001, TA0008, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T1078
+      name: Valid Accounts
+    - id: T0831
+      name: Manipulation of Control
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Internet-origin adversary with commodity tooling
+    scannable: true
+    criticality: low
+
+  - id: engineering_workstation
+    type: it_asset
+    description: Windows workstation used by control engineers for HMI access and PLC programming
+    scannable: true
+    criticality: medium
+
+  - id: jump_host
+    type: it_asset
+    description: Dual-homed Windows server bridging IT and OT networks
+    scannable: true
+    criticality: high
+
+  - id: scada_hmi
+    type: ot_asset
+    description: Human-Machine Interface for water treatment SCADA
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: high
+    consequence_type: integrity
+
+  - id: plc_chemical_dosing
+    type: ot_asset
+    description: PLC controlling chlorine or sodium-hydroxide injection at the treatment plant
+    scannable: false
+    reason_unscannable: safety_critical_air_gapped
+    criticality: critical
+    consequence_type: physical_safety
+
+edges:
+  - from: external_attacker
+    to: engineering_workstation
+    technique: T1190
+    detection_difficulty: medium
+    notes: VPN appliance or remote-access tool with known CVE; observed pattern in CISA AA22-103A
+
+  - from: engineering_workstation
+    to: jump_host
+    technique: T1078
+    detection_difficulty: high
+    notes: Cached domain credentials reused on the OT-side jump host
+
+  - from: jump_host
+    to: scada_hmi
+    technique: T1078
+    detection_difficulty: high
+    notes: Shared service account or vendor-default credentials
+
+  - from: scada_hmi
+    to: plc_chemical_dosing
+    technique: T0831
+    detection_difficulty: very_high
+    notes: Unauthorised setpoint change; not logged by default on most ICS protocols
+
+likelihood:
+  annual_frequency:
+    min: 0.005
+    mode: 0.04
+    max: 0.20
+  rationale: >
+    Anchored to publicly disclosed AU and Five-Eyes water-sector incidents
+    2019-2025 normalised against the AU operator population. AU has 14
+    SOCI-regulated water entities; observed disclosed intrusions over six
+    years suggest a per-operator annual mode in the 3-5% range.
+
+loss_magnitude:
+  primary_response:
+    min: 250000
+    mode: 1200000
+    max: 5000000
+    notes: Incident response, forensic, OT-aware DFIR specialist engagement
+  secondary_response:
+    min: 500000
+    mode: 8000000
+    max: 80000000
+    notes: Public health notification, boil-water orders, regulatory fines, class action, brand damage
+  currency: AUD
+
+controls_suggested:
+  - id: PR.AC-5
+    name: Network segmentation between IT and OT
+    framework: NIST-CSF
+  - id: E8-PATCH-INTERNET-FACING
+    name: Patch internet-facing services within 48 hours
+    framework: Essential-Eight
+  - id: AESCSF-AC-04
+    name: Privileged access management on OT jump hosts
+    framework: AESCSF
+  - id: CIRMP-CYBER-7
+    name: Documented OT change-management process with two-person rule
+    framework: SOCI-CIRMP
+
+references:
+  - "CISA advisory AA21-287A: Ongoing Cyber Threats to U.S. Water and Wastewater Systems"
+  - "https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-287a"
+  - "Oldsmar water treatment plant intrusion, February 2021 — public reporting"
+  - "Australian Cyber Security Centre, Annual Cyber Threat Report 2024-25"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, water and sewerage asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

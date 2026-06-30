@@ -1,0 +1,116 @@
+id: HLT-009
+title: Pharmacy automated dispensing system tampering creating medication errors
+version: 1.0.0
+sector: healthcare
+soci_asset_class: health_care_and_medical
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises the hospital pharmacy automated dispensing system
+  and alters drug-to-bin mappings or dose limits, causing medication errors
+  at scale until clinical staff notice via incident reports. Distinct from
+  HLT-004 (which targets pumps directly) because this scenario sits at the
+  pharmacy-to-ward boundary. Pattern reflects HC3 advisories on automated
+  dispensing cabinets and TGA cybersecurity concerns about pharmacy
+  automation.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T0836
+      name: Modify Parameter
+    - id: T1565
+      name: Data Manipulation
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Adversary targeting healthcare automation
+    scannable: true
+    criticality: low
+
+  - id: pharmacy_management_server
+    type: it_asset
+    description: Pharmacy automated dispensing management server
+    scannable: true
+    criticality: critical
+    consequence_type: integrity
+
+  - id: dispensing_cabinet_population
+    type: iot_asset
+    description: Automated dispensing cabinets across wards
+    scannable: false
+    reason_unscannable: embedded_constrained_device
+    criticality: critical
+    consequence_type: physical_safety
+
+  - id: drug_to_bin_mapping
+    type: data_store
+    description: Drug-to-bin and dose-limit configuration data
+    scannable: true
+    criticality: critical
+    consequence_type: integrity
+
+edges:
+  - from: external_attacker
+    to: pharmacy_management_server
+    technique: T1190
+    detection_difficulty: medium
+
+  - from: pharmacy_management_server
+    to: drug_to_bin_mapping
+    technique: T1565
+    detection_difficulty: very_high
+
+  - from: drug_to_bin_mapping
+    to: dispensing_cabinet_population
+    technique: T0836
+    detection_difficulty: very_high
+
+likelihood:
+  annual_frequency:
+    min: 0.0005
+    mode: 0.008
+    max: 0.04
+  rationale: >
+    Very low base rate per disclosed incidents but consequence severity is
+    high. Mode reflects HC3 and TGA elevated concern about pharmacy
+    automation cyber risk since 2023.
+
+loss_magnitude:
+  primary_response:
+    min: 500000
+    mode: 3000000
+    max: 15000000
+  secondary_response:
+    min: 2000000
+    mode: 50000000
+    max: 800000000
+    notes: Patient-safety event with possible loss of life, TGA and coronial inquiry, possible criminal liability under WHS legislation
+  currency: AUD
+
+controls_suggested:
+  - id: PR.DS-6
+    name: Integrity checking on drug-to-bin mapping data
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-7
+    name: Two-person rule for dispensing configuration changes
+    framework: SOCI-CIRMP
+  - id: PR.AC-5
+    name: Network segmentation isolating pharmacy automation
+    framework: NIST-CSF
+
+references:
+  - "HC3 (US HHS) advisories on automated dispensing cabinets"
+  - "TGA Medical Device Cybersecurity Guidance"
+  - "ISMP medication safety and pharmacy automation publications"
+  - "ACSC, Annual Cyber Threat Report 2024-25 — health sector"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, health care and medical asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

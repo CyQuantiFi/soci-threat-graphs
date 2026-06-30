@@ -1,0 +1,117 @@
+id: WAT-003
+title: Internet-exposed HMI directly accessed by opportunistic adversary
+version: 1.0.0
+sector: water
+soci_asset_class: water_and_sewerage
+classification: TLP:CLEAR
+
+summary: >
+  A small water utility's HMI or VNC server is reachable from the public
+  internet, either by design (unmanaged remote-support) or by misconfiguration.
+  An opportunistic attacker discovers the asset through internet scanning
+  (Shodan, Censys), authenticates with default or weak credentials, and
+  issues setpoint changes that affect treatment dosing or pump scheduling.
+  Pattern is consistent with the Oldsmar 2021 incident and the broader CISA
+  alerts AA22-103A and AA22-083A on water-sector exposures.
+
+mitre_attack:
+  tactics: [TA0001, TA0008, TA0040]
+  techniques:
+    - id: T1133
+      name: External Remote Services
+    - id: T1078
+      name: Valid Accounts
+    - id: T0855
+      name: Unauthorized Command Message
+
+nodes:
+  - id: opportunistic_attacker
+    type: external
+    description: Low-capability attacker using public scanning tools
+    scannable: true
+    criticality: low
+
+  - id: internet_exposed_hmi
+    type: ot_asset
+    description: HMI or VNC instance reachable from the public internet
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: high
+    consequence_type: integrity
+
+  - id: plc_dosing_or_pump
+    type: ot_asset
+    description: PLC controlling chemical dosing or pump scheduling
+    scannable: false
+    reason_unscannable: safety_critical_air_gapped
+    criticality: critical
+    consequence_type: physical_safety
+
+edges:
+  - from: opportunistic_attacker
+    to: internet_exposed_hmi
+    technique: T1133
+    detection_difficulty: low
+    notes: Public scanning identifies the asset; weak or default credentials accepted
+
+  - from: opportunistic_attacker
+    to: internet_exposed_hmi
+    technique: T1078
+    detection_difficulty: high
+    notes: Stolen or guessed credentials
+
+  - from: internet_exposed_hmi
+    to: plc_dosing_or_pump
+    technique: T0855
+    detection_difficulty: very_high
+
+likelihood:
+  annual_frequency:
+    min: 0.001
+    mode: 0.02
+    max: 0.10
+  rationale: >
+    Most large SOCI water entities have remediated direct internet exposure of
+    HMIs, but the long tail of smaller council-owned operators continues to
+    expose assets per ACSC and CISA water-sector advisories. Mode reflects
+    annualised likelihood of an opportunistic actor exploiting an exposure
+    on any single operator.
+
+loss_magnitude:
+  primary_response:
+    min: 100000
+    mode: 600000
+    max: 3000000
+  secondary_response:
+    min: 200000
+    mode: 4000000
+    max: 60000000
+    notes: Public health investigation, regulator inquiry, drinking-water notification
+  currency: AUD
+
+controls_suggested:
+  - id: E8-PATCH-INTERNET-FACING
+    name: Patch internet-facing services within 48 hours
+    framework: Essential-Eight
+  - id: PR.AC-5
+    name: Network segmentation, no direct internet exposure of OT
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-3
+    name: Inventory of internet-reachable services and quarterly external attack-surface review
+    framework: SOCI-CIRMP
+  - id: AESCSF-AC-04
+    name: Privileged access management on remote-access pathways
+    framework: AESCSF
+
+references:
+  - "Oldsmar water treatment plant intrusion, February 2021"
+  - "CISA advisory AA22-103A: APT cyber tools targeting ICS/SCADA devices"
+  - "CISA advisory AA22-083A: tactics, techniques, and procedures against water and wastewater"
+  - "Shodan and Censys public scanning data on AU exposed industrial protocols"
+  - "ACSC, Annual Cyber Threat Report 2024-25 — water and wastewater sector"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

@@ -1,0 +1,117 @@
+id: ELE-009
+title: Insider exfiltration of grid topology and protection-settings data
+version: 1.0.0
+sector: electricity
+soci_asset_class: electricity
+classification: TLP:CLEAR
+
+summary: >
+  A current or recently-departed engineer with access to grid topology,
+  protection settings, and SCADA configuration exfiltrates this data to an
+  external party (state-aligned actor, broker, or competitor). The data
+  itself does not cause an outage but enables a subsequent attacker to
+  craft a much more precise and damaging operation against the network.
+  Pattern documented in ASIO and CERT Australia advisories on espionage
+  targeting AU energy operators.
+
+mitre_attack:
+  tactics: [TA0001, TA0010]
+  techniques:
+    - id: T1078
+      name: Valid Accounts
+    - id: T1213
+      name: Data from Information Repositories
+    - id: T1567
+      name: Exfiltration Over Web Service
+
+nodes:
+  - id: insider_engineer
+    type: person
+    description: Engineer with legitimate access to topology and configuration repositories
+    scannable: false
+    reason_unscannable: third_party_no_access
+    criticality: high
+
+  - id: configuration_management_database
+    type: data_store
+    description: CMDB and engineering document repository
+    scannable: true
+    criticality: high
+    consequence_type: confidentiality
+
+  - id: scada_configuration_archive
+    type: data_store
+    description: SCADA configuration backups, protection settings, single-line diagrams
+    scannable: true
+    criticality: critical
+    consequence_type: confidentiality
+
+  - id: external_recipient
+    type: external
+    description: External actor receiving the exfiltrated data
+    scannable: true
+    criticality: low
+
+edges:
+  - from: insider_engineer
+    to: configuration_management_database
+    technique: T1078
+    detection_difficulty: very_high
+    notes: Legitimate access; no anomaly to detect at access time
+
+  - from: insider_engineer
+    to: scada_configuration_archive
+    technique: T1213
+    detection_difficulty: high
+
+  - from: configuration_management_database
+    to: external_recipient
+    technique: T1567
+    detection_difficulty: high
+    notes: Web-based file sharing or personal cloud storage
+
+likelihood:
+  annual_frequency:
+    min: 0.002
+    mode: 0.02
+    max: 0.08
+  rationale: >
+    ASIO and AFP have publicly noted increased espionage targeting AU CI
+    workers since 2022. Mode reflects the annualised likelihood of a
+    successful exfiltration event at any one AU electricity operator.
+
+loss_magnitude:
+  primary_response:
+    min: 250000
+    mode: 1500000
+    max: 8000000
+  secondary_response:
+    min: 1500000
+    mode: 30000000
+    max: 1000000000
+    notes: "Long-tail consequence: stolen topology enables a later targeted attack with much higher loss potential"
+  currency: AUD
+
+controls_suggested:
+  - id: AESCSF-AC-06
+    name: User-activity monitoring on configuration repositories
+    framework: AESCSF
+  - id: PR.AC-4
+    name: Access permissions managed; least privilege
+    framework: NIST-CSF
+  - id: CIRMP-PERS-1
+    name: Personnel security checks including baseline and ongoing suitability
+    framework: SOCI-CIRMP
+
+references:
+  - "ASIO Director-General's Annual Threat Assessment 2024 and 2025"
+  - "AFP cyber crime publications on insider threat"
+  - "AESCSF v1, AEMO — personnel and access control"
+  - "ENISA Insider Threat Landscape 2023"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, electricity asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

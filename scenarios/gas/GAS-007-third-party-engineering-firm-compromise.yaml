@@ -1,0 +1,127 @@
+id: GAS-007
+title: Third-party engineering firm compromise as supply-chain entry
+version: 1.0.0
+sector: gas
+soci_asset_class: gas
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises an external engineering consultancy that provides
+  process-engineering services to a gas operator and has read-only access
+  to the operator's control-system documentation, historian data, and a
+  jump host. The attacker uses this trusted-third-party access to pivot
+  into the operator's environment. Reflects the increasing prominence of
+  third-party access as an initial vector in Mandiant M-Trends and the
+  AESCSF supply-chain control area.
+
+mitre_attack:
+  tactics: [TA0001, TA0008]
+  techniques:
+    - id: T1199
+      name: Trusted Relationship
+    - id: T1078
+      name: Valid Accounts
+    - id: T1133
+      name: External Remote Services
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Adversary targeting professional services firms with CI clients
+    scannable: true
+    criticality: low
+
+  - id: engineering_firm_environment
+    type: vendor_asset
+    description: Engineering consultancy's IT environment
+    scannable: false
+    reason_unscannable: third_party_no_access
+    criticality: high
+
+  - id: consultant_remote_access
+    type: it_asset
+    description: Operator-managed remote access account for the consultancy
+    scannable: true
+    criticality: high
+
+  - id: operator_jump_host
+    type: it_asset
+    description: Operator jump host bridging consultant access to OT
+    scannable: true
+    criticality: high
+
+  - id: operator_historian
+    type: it_asset
+    description: Operator's data historian and engineering documentation
+    scannable: true
+    criticality: high
+    consequence_type: confidentiality
+
+edges:
+  - from: external_attacker
+    to: engineering_firm_environment
+    technique: T1199
+    detection_difficulty: very_high
+    notes: Operator has no visibility into consultancy environment
+
+  - from: engineering_firm_environment
+    to: consultant_remote_access
+    technique: T1078
+    detection_difficulty: high
+    notes: Stolen consultant credentials used against operator access
+
+  - from: consultant_remote_access
+    to: operator_jump_host
+    technique: T1133
+    detection_difficulty: high
+
+  - from: operator_jump_host
+    to: operator_historian
+    technique: T1078
+    detection_difficulty: high
+
+likelihood:
+  annual_frequency:
+    min: 0.005
+    mode: 0.04
+    max: 0.15
+  rationale: >
+    Third-party access compromises are increasingly documented in Mandiant
+    M-Trends and ENISA reports. Mode reflects the typical multi-consultancy
+    exposure of AU gas operators.
+
+loss_magnitude:
+  primary_response:
+    min: 500000
+    mode: 2500000
+    max: 12000000
+  secondary_response:
+    min: 1500000
+    mode: 25000000
+    max: 300000000
+    notes: Exfiltrated engineering documentation enables a much higher-consequence later attack; possible regulatory inquiry on third-party governance
+  currency: AUD
+
+controls_suggested:
+  - id: CIRMP-CYBER-12
+    name: Third-party access governance and continuous monitoring
+    framework: SOCI-CIRMP
+  - id: AESCSF-SP-02
+    name: Third-party connectivity controls
+    framework: AESCSF
+  - id: PR.AC-3
+    name: Remote access is managed
+    framework: NIST-CSF
+
+references:
+  - "Mandiant M-Trends 2025 — third-party initial access"
+  - "ENISA Supply Chain Threat Landscape"
+  - "ASD/ACSC, Annual Cyber Threat Report 2024-25 — third-party risk"
+  - "AESCSF v1, AEMO — supply-chain control area"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, gas asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

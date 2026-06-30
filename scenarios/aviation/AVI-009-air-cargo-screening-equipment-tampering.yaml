@@ -1,0 +1,117 @@
+id: AVI-009
+title: Air-cargo screening equipment tampering enabling prohibited-item carriage
+version: 1.0.0
+sector: aviation
+soci_asset_class: aviation
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises the cargo-screening equipment management network
+  at an airport — explosive trace detection units, X-ray units, container
+  scanning systems — and tampers with calibration or detection sensitivity
+  to allow prohibited items to pass undetected. Pattern reflects ICAO and
+  DHA aviation-security concerns about cyber risk to screening technology
+  and the documented Office of Inspector General reports on screening
+  equipment elsewhere.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T0836
+      name: Modify Parameter
+    - id: T0815
+      name: Denial of View
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: State-aligned actor or terrorist organisation
+    scannable: true
+    criticality: low
+
+  - id: screening_management_network
+    type: it_asset
+    description: Cargo-screening equipment management network
+    scannable: true
+    criticality: critical
+    consequence_type: integrity
+
+  - id: explosive_detection_units
+    type: ot_asset
+    description: Explosive trace detection units
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: critical
+    consequence_type: physical_safety
+
+  - id: cargo_screening_operation
+    type: ot_asset
+    description: Cargo-screening operational workflow
+    scannable: false
+    reason_unscannable: operational_disruption_risk
+    criticality: critical
+    consequence_type: physical_safety
+
+edges:
+  - from: external_attacker
+    to: screening_management_network
+    technique: T1190
+    detection_difficulty: high
+
+  - from: screening_management_network
+    to: explosive_detection_units
+    technique: T0836
+    detection_difficulty: very_high
+
+  - from: explosive_detection_units
+    to: cargo_screening_operation
+    technique: T0815
+    detection_difficulty: very_high
+
+likelihood:
+  annual_frequency:
+    min: 0.0002
+    mode: 0.004
+    max: 0.02
+  rationale: >
+    Very low base rate per disclosed AU incidents; capability and intent
+    require state-aligned actor or terrorist motive. Mode reflects the
+    elevated threat environment for AU aviation in ASIO assessments.
+
+loss_magnitude:
+  primary_response:
+    min: 2000000
+    mode: 15000000
+    max: 80000000
+  secondary_response:
+    min: 10000000
+    mode: 300000000
+    max: 10000000000
+    notes: National-security event, possible terrorist-incident consequence with mass casualties, ATSB and coronial inquiries
+  currency: AUD
+
+controls_suggested:
+  - id: PR.DS-6
+    name: Integrity checking on screening-equipment calibration
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-7
+    name: Two-person rule for screening-equipment calibration changes
+    framework: SOCI-CIRMP
+  - id: PR.AC-5
+    name: Network segmentation isolating screening equipment
+    framework: NIST-CSF
+
+references:
+  - "ICAO Annex 17 — Security and ICAO Cybersecurity Strategy"
+  - "Department of Home Affairs Aviation Transport Security Regulations"
+  - "ASIO Director-General's Annual Threat Assessment 2024 and 2025"
+  - "ACSC, Annual Cyber Threat Report 2024-25"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, aviation asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

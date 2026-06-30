@@ -1,0 +1,117 @@
+id: GAS-006
+title: Cathodic-protection IoT tampering accelerating pipeline corrosion
+version: 1.0.0
+sector: gas
+soci_asset_class: gas
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises the cellular-connected cathodic-protection (CP)
+  monitoring devices on a buried pipeline and silently degrades the
+  protection currents. The tampering does not cause an immediate event;
+  instead, it accelerates corrosion over months, dramatically shortening
+  the asset's remaining useful life and creating eventual leak or rupture
+  risk. Pattern emerges from public IoT-device security research and
+  Dragos and CISA reports on long-dwell ICS intrusions.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T0836
+      name: Modify Parameter
+    - id: T0809
+      name: Block Reporting Message
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Patient adversary, possibly state-aligned
+    scannable: true
+    criticality: low
+
+  - id: cathodic_protection_iot
+    type: iot_asset
+    description: Cellular-connected CP monitoring and rectifier-control devices
+    scannable: false
+    reason_unscannable: embedded_constrained_device
+    criticality: high
+    consequence_type: integrity
+
+  - id: cp_monitoring_platform
+    type: it_asset
+    description: Cloud or on-premise CP monitoring platform
+    scannable: true
+    criticality: high
+    consequence_type: integrity
+
+  - id: buried_pipeline_asset
+    type: ot_asset
+    description: Buried steel pipeline relying on CP for corrosion control
+    scannable: false
+    reason_unscannable: operational_disruption_risk
+    criticality: critical
+    consequence_type: physical_safety
+
+edges:
+  - from: external_attacker
+    to: cp_monitoring_platform
+    technique: T1190
+    detection_difficulty: medium
+
+  - from: cp_monitoring_platform
+    to: cathodic_protection_iot
+    technique: T0836
+    detection_difficulty: very_high
+
+  - from: cathodic_protection_iot
+    to: buried_pipeline_asset
+    technique: T0809
+    detection_difficulty: very_high
+    notes: Damage accumulates over months — discovery only via direct inspection
+
+likelihood:
+  annual_frequency:
+    min: 0.0002
+    mode: 0.004
+    max: 0.02
+  rationale: >
+    Very low base rate but consequence is catastrophic and slow-accumulating.
+    Mode reflects the combination of poor IoT security maturity in CP devices
+    and rising state-actor patience documented in CISA and ACSC reports.
+
+loss_magnitude:
+  primary_response:
+    min: 1000000
+    mode: 5000000
+    max: 25000000
+  secondary_response:
+    min: 5000000
+    mode: 80000000
+    max: 3000000000
+    notes: Eventual rupture event, environmental remediation, possible loss of life, supply disruption, asset replacement
+  currency: AUD
+
+controls_suggested:
+  - id: PR.DS-6
+    name: Integrity checking on CP telemetry
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-3
+    name: Inventory and assurance of IoT-class CP devices
+    framework: SOCI-CIRMP
+  - id: ISO-15589
+    name: Cathodic protection of buried or immersed metallic piping systems
+
+references:
+  - "AS/NZS 2832 series on cathodic protection"
+  - "Dragos OT Cybersecurity Year in Review 2024-2025 — long-dwell intrusions"
+  - "Australian Pipelines and Gas Association integrity-management guidance"
+  - "CISA advisories on IoT-class ICS devices"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, gas asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

@@ -1,0 +1,118 @@
+id: POR-007
+title: Insider stevedore using terminal systems for cargo misappropriation
+version: 1.0.0
+sector: ports
+soci_asset_class: ports
+classification: TLP:CLEAR
+
+summary: >
+  A stevedore or terminal-systems user with legitimate access to the
+  Terminal Operating System uses their access to facilitate cargo
+  misappropriation — selectively releasing containers to colluding road
+  hauliers, altering manifests, or covering up the diversion in the
+  audit trail. Pattern is well-documented in AFP and ABF organised-crime
+  investigations and reflects the ongoing concern about insider risk in
+  AU and global port operations.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1078
+      name: Valid Accounts
+    - id: T1565
+      name: Data Manipulation
+    - id: T1070
+      name: Indicator Removal
+
+nodes:
+  - id: insider_stevedore
+    type: person
+    description: Stevedore or terminal-systems user with legitimate access
+    scannable: false
+    reason_unscannable: third_party_no_access
+    criticality: medium
+
+  - id: terminal_operating_system
+    type: it_asset
+    description: Terminal Operating System driving container movements
+    scannable: true
+    criticality: critical
+    consequence_type: integrity
+
+  - id: gate_release_workflow
+    type: it_asset
+    description: Truck gate release authorisation workflow
+    scannable: true
+    criticality: high
+    consequence_type: integrity
+
+  - id: tos_audit_log
+    type: data_store
+    description: TOS audit log of container movements
+    scannable: true
+    criticality: high
+    consequence_type: integrity
+
+edges:
+  - from: insider_stevedore
+    to: terminal_operating_system
+    technique: T1078
+    detection_difficulty: very_high
+    notes: Authorised access; no anomaly at access time
+
+  - from: terminal_operating_system
+    to: gate_release_workflow
+    technique: T1565
+    detection_difficulty: high
+
+  - from: terminal_operating_system
+    to: tos_audit_log
+    technique: T1070
+    detection_difficulty: very_high
+    notes: Audit-log tampering or log gap manipulation
+
+likelihood:
+  annual_frequency:
+    min: 0.01
+    mode: 0.06
+    max: 0.20
+  rationale: >
+    Insider cargo-misappropriation at AU ports is documented in multiple
+    AFP and ABF organised-crime investigations 2018-2025. Mode reflects
+    the recurrence rate at large container terminals.
+
+loss_magnitude:
+  primary_response:
+    min: 200000
+    mode: 1200000
+    max: 6000000
+  secondary_response:
+    min: 500000
+    mode: 8000000
+    max: 100000000
+    notes: ABF and AFP investigation, possible loss of trusted-trader status, customer compensation, brand damage
+  currency: AUD
+
+controls_suggested:
+  - id: PR.AC-4
+    name: Least privilege and separation of duties on TOS roles
+    framework: NIST-CSF
+  - id: CIRMP-PERS-1
+    name: Personnel security checks including ongoing suitability
+    framework: SOCI-CIRMP
+  - id: AESCSF-AC-06
+    name: User-activity monitoring on TOS
+    framework: AESCSF
+
+references:
+  - "AFP and ABF organised-crime investigations at AU ports 2018-2025"
+  - "ENISA Insider Threat Landscape"
+  - "ASD/ACSC, Annual Cyber Threat Report 2024-25 — insider threat"
+  - "Maritime Transport and Offshore Facilities Security Act 2003"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, ports asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

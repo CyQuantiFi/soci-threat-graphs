@@ -1,0 +1,133 @@
+id: ELE-001
+title: Substation RTU manipulation via vendor remote-access channel
+version: 1.0.0
+sector: electricity
+soci_asset_class: electricity
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises a vendor's remote-support infrastructure used to
+  maintain Remote Terminal Units (RTUs) at distribution substations, then
+  issues unauthorised breaker-open commands resulting in localised supply
+  loss. The architectural pattern — vendor-maintained OT equipment reachable
+  via a persistent vendor tunnel — is widespread in AU distribution networks.
+  Anchored to the 2015 and 2016 Ukraine grid incidents and the documented
+  growth of supply-chain compromise as an initial-access vector.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1199
+      name: Trusted Relationship
+    - id: T0855
+      name: Unauthorized Command Message
+    - id: T0831
+      name: Manipulation of Control
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Adversary with capability to compromise a vendor environment
+    scannable: true
+    criticality: low
+
+  - id: vendor_support_environment
+    type: vendor_asset
+    description: OEM vendor's remote-support platform with persistent tunnels into customer substations
+    scannable: false
+    reason_unscannable: third_party_no_access
+    criticality: high
+
+  - id: vendor_tunnel
+    type: ot_asset
+    description: Persistent encrypted tunnel from vendor environment into the operator's OT network
+    scannable: false
+    reason_unscannable: operational_disruption_risk
+    criticality: high
+
+  - id: substation_rtu
+    type: ot_asset
+    description: Remote Terminal Unit at a distribution substation, controlling local breakers and switchgear
+    scannable: false
+    reason_unscannable: safety_critical_air_gapped
+    criticality: critical
+    consequence_type: availability
+
+  - id: distribution_breaker
+    type: ot_asset
+    description: Medium-voltage breaker controlled by the RTU
+    scannable: false
+    reason_unscannable: embedded_constrained_device
+    criticality: critical
+    consequence_type: physical_safety
+
+edges:
+  - from: external_attacker
+    to: vendor_support_environment
+    technique: T1199
+    detection_difficulty: very_high
+    notes: Operator has no visibility into vendor environment; detection depends on vendor
+
+  - from: vendor_support_environment
+    to: vendor_tunnel
+    technique: T1199
+    detection_difficulty: high
+
+  - from: vendor_tunnel
+    to: substation_rtu
+    technique: T0855
+    detection_difficulty: very_high
+    notes: Command appears legitimate; protocol authentication often absent or weak
+
+  - from: substation_rtu
+    to: distribution_breaker
+    technique: T0831
+    detection_difficulty: very_high
+
+likelihood:
+  annual_frequency:
+    min: 0.002
+    mode: 0.025
+    max: 0.10
+  rationale: >
+    Lower frequency than IT-origin attacks because supply-chain compromise of
+    an OT vendor is a high-capability operation. However, AESCSF and ASD
+    have both flagged increasing supply-chain risk to grid operators, and
+    several AU distribution networks share a small number of common OEM
+    vendors — a single vendor compromise affects many operators.
+
+loss_magnitude:
+  primary_response:
+    min: 500000
+    mode: 3500000
+    max: 15000000
+    notes: Forensic engagement, vendor coordination, substation site visits, manual operation
+  secondary_response:
+    min: 2000000
+    mode: 25000000
+    max: 200000000
+    notes: Customer compensation, AER penalty exposure, Essential Services Commission action, brand damage, possible National Electricity Rules contraventions
+  currency: AUD
+
+controls_suggested:
+  - id: PR.AT-3
+    name: Third-party stakeholder cybersecurity awareness
+    framework: NIST-CSF
+  - id: AESCSF-SP-01
+    name: Supply chain risk assessment for OT vendors
+    framework: AESCSF
+  - id: CIRMP-CYBER-12
+    name: Vendor remote-access logging and time-bound approval
+    framework: SOCI-CIRMP
+
+references:
+  - "Ukraine power grid attack 2015 — SANS Industrial Control Systems analysis"
+  - "Ukraine power grid attack 2016 (Industroyer/CrashOverride) — ESET, Dragos public reports"
+  - "Australian Energy Sector Cyber Security Framework v1, AEMO"
+  - "ASD/ACSC, Annual Cyber Threat Report 2024-25 — supply chain section"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

@@ -1,0 +1,115 @@
+id: HLT-008
+title: ICU patient-monitor network flood disrupting clinical observation
+version: 1.0.0
+sector: healthcare
+soci_asset_class: health_care_and_medical
+classification: TLP:CLEAR
+
+summary: >
+  A worm-like infection or deliberate flood overwhelms the network segment
+  serving ICU patient monitors, causing missed alarms, lost telemetry, and
+  delayed clinical response. Pattern reflects the documented WannaCry
+  impact on NHS UK in 2017, where networked medical devices and monitors
+  were severely degraded, and ongoing concerns at the TGA and HC3 about
+  network-flooding effects on safety-critical clinical IoMT.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T1499
+      name: Endpoint Denial of Service
+    - id: T0815
+      name: Denial of View
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Worm operator or deliberate attacker
+    scannable: true
+    criticality: low
+
+  - id: hospital_corporate_network
+    type: it_asset
+    description: Hospital corporate IT network
+    scannable: true
+    criticality: high
+
+  - id: clinical_iomt_network
+    type: ot_asset
+    description: Network segment serving ICU monitors and bedside devices
+    scannable: false
+    reason_unscannable: operational_disruption_risk
+    criticality: critical
+
+  - id: icu_patient_monitor_population
+    type: iot_asset
+    description: ICU bedside patient monitors
+    scannable: false
+    reason_unscannable: embedded_constrained_device
+    criticality: critical
+    consequence_type: physical_safety
+
+edges:
+  - from: external_attacker
+    to: hospital_corporate_network
+    technique: T1190
+    detection_difficulty: medium
+
+  - from: hospital_corporate_network
+    to: clinical_iomt_network
+    technique: T1499
+    detection_difficulty: high
+
+  - from: clinical_iomt_network
+    to: icu_patient_monitor_population
+    technique: T0815
+    detection_difficulty: very_high
+    notes: Alarms lost or significantly delayed
+
+likelihood:
+  annual_frequency:
+    min: 0.005
+    mode: 0.04
+    max: 0.15
+  rationale: >
+    Worm-like network floods affecting healthcare are documented in
+    WannaCry, NotPetya, and several smaller events. Mode reflects the AU
+    hospital networking environment and ongoing legacy-OS prevalence.
+
+loss_magnitude:
+  primary_response:
+    min: 500000
+    mode: 3000000
+    max: 15000000
+  secondary_response:
+    min: 2000000
+    mode: 35000000
+    max: 600000000
+    notes: Possible patient-safety event with loss of life, ICU diversion, TGA and coronial inquiries
+  currency: AUD
+
+controls_suggested:
+  - id: PR.AC-5
+    name: Network segmentation isolating clinical IoMT
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-8
+    name: Compensating controls for unscannable medical devices
+    framework: SOCI-CIRMP
+  - id: PR.IP-12
+    name: Vulnerability management plan including IoMT patching cadence
+    framework: NIST-CSF
+
+references:
+  - "WannaCry NHS UK incident, May 2017"
+  - "TGA Medical Device Cybersecurity Guidance"
+  - "HC3 (US HHS) advisories on IoMT-network resilience"
+  - "ACSC, Annual Cyber Threat Report 2024-25 — health sector"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, health care and medical asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

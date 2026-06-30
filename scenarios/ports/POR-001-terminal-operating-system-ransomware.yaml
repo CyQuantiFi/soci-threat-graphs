@@ -1,0 +1,135 @@
+id: POR-001
+title: Terminal operating system ransomware halting container movement
+version: 1.0.0
+sector: ports
+soci_asset_class: ports
+classification: TLP:CLEAR
+
+summary: >
+  An attacker delivers ransomware into a container terminal's IT environment,
+  encrypts the Terminal Operating System (TOS) database, and indirectly halts
+  crane and gate operations because cargo movement is gated on TOS lookups.
+  The pattern is consistent with multiple disclosed incidents at major
+  international ports (Maersk/NotPetya 2017, Port of Nagoya 2023) and the
+  2020 Toll Group incident in Australia. Even where OT systems are not
+  directly compromised, dependency on IT-side scheduling and gate systems
+  results in operational paralysis.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1566
+      name: Phishing
+    - id: T1486
+      name: Data Encrypted for Impact
+    - id: T1490
+      name: Inhibit System Recovery
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Ransomware-as-a-service affiliate
+    scannable: true
+    criticality: low
+
+  - id: corporate_email
+    type: it_asset
+    description: Office productivity environment used by terminal staff
+    scannable: true
+    criticality: medium
+
+  - id: terminal_operating_system
+    type: it_asset
+    description: TOS database and application servers — system of record for every container movement
+    scannable: true
+    criticality: critical
+    consequence_type: availability
+
+  - id: gate_system
+    type: ot_asset
+    description: Truck gate-in/gate-out automation, depends on TOS for booking lookups
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: high
+    consequence_type: availability
+
+  - id: ship_to_shore_crane
+    type: ot_asset
+    description: STS crane operator workstation, gated on TOS work orders
+    scannable: false
+    reason_unscannable: operational_disruption_risk
+    criticality: critical
+    consequence_type: availability
+
+edges:
+  - from: external_attacker
+    to: corporate_email
+    technique: T1566
+    detection_difficulty: medium
+    notes: Phishing with credential-harvesting attachment
+
+  - from: corporate_email
+    to: terminal_operating_system
+    technique: T1486
+    detection_difficulty: low
+    notes: Lateral movement from compromised user workstation to TOS servers
+
+  - from: terminal_operating_system
+    to: gate_system
+    technique: T1486
+    detection_difficulty: very_low
+    notes: Gate system becomes inoperable when TOS lookups fail
+
+  - from: terminal_operating_system
+    to: ship_to_shore_crane
+    technique: T1486
+    detection_difficulty: very_low
+    notes: Crane operators cannot receive work orders; vessel discharge halts
+
+likelihood:
+  annual_frequency:
+    min: 0.01
+    mode: 0.06
+    max: 0.25
+  rationale: >
+    Ports are high-value ransomware targets. AU has fewer than 10 SOCI port
+    operators but global incident rate at major terminals indicates a per-
+    operator annual mode in the 5-8% range. Recent AU history (Toll 2020,
+    DP World Australia 2023) supports the upper bound.
+
+loss_magnitude:
+  primary_response:
+    min: 1000000
+    mode: 6000000
+    max: 30000000
+    notes: Incident response, system rebuild, backup restoration, surge labour
+  secondary_response:
+    min: 5000000
+    mode: 50000000
+    max: 500000000
+    notes: Berth congestion penalties, customer compensation, supply-chain knock-on, regulatory action under SOCI enforcement (post-April 2026)
+  currency: AUD
+
+controls_suggested:
+  - id: PR.IP-4
+    name: Backups conducted, maintained, and tested
+    framework: NIST-CSF
+  - id: E8-BACKUPS
+    name: Daily backups with offline copy and tested recovery
+    framework: Essential-Eight
+  - id: CIRMP-CYBER-9
+    name: Tested incident response and business continuity plan
+    framework: SOCI-CIRMP
+
+references:
+  - "Maersk / NotPetya incident, June 2017 — public post-incident reporting"
+  - "Port of Nagoya ransomware incident, July 2023 — JPCERT/CC analysis"
+  - "DP World Australia incident, November 2023 — public disclosures"
+  - "Toll Group ransomware incidents, January and May 2020 — public disclosures"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, ports asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

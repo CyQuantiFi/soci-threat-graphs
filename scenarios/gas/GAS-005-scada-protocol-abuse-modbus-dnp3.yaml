@@ -1,0 +1,116 @@
+id: GAS-005
+title: SCADA protocol abuse (Modbus, DNP3) against gas distribution
+version: 1.0.0
+sector: gas
+soci_asset_class: gas
+classification: TLP:CLEAR
+
+summary: >
+  An attacker who has established a foothold on the gas distribution control
+  network uses native ICS protocols (Modbus TCP, DNP3) to issue commands
+  to remote terminal units (RTUs) controlling pressure-regulating stations.
+  Protocols lack strong authentication; commands appear legitimate.
+  Consequence is unplanned pressure changes affecting distribution
+  customers, particularly large industrial consumers and gas-fired
+  generators.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T0855
+      name: Unauthorized Command Message
+    - id: T0836
+      name: Modify Parameter
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Adversary with ICS-protocol-aware tooling
+    scannable: true
+    criticality: low
+
+  - id: corporate_network_pivot
+    type: it_asset
+    description: Initial foothold on the corporate IT network
+    scannable: true
+    criticality: high
+
+  - id: control_network_rtu_gateway
+    type: ot_asset
+    description: Gateway speaking Modbus or DNP3 to field RTUs
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: high
+
+  - id: pressure_regulating_rtu
+    type: ot_asset
+    description: RTU controlling a pressure-regulating station
+    scannable: false
+    reason_unscannable: safety_critical_air_gapped
+    criticality: critical
+    consequence_type: physical_safety
+
+edges:
+  - from: external_attacker
+    to: corporate_network_pivot
+    technique: T1190
+    detection_difficulty: medium
+
+  - from: corporate_network_pivot
+    to: control_network_rtu_gateway
+    technique: T0855
+    detection_difficulty: high
+
+  - from: control_network_rtu_gateway
+    to: pressure_regulating_rtu
+    technique: T0836
+    detection_difficulty: very_high
+
+likelihood:
+  annual_frequency:
+    min: 0.001
+    mode: 0.015
+    max: 0.07
+  rationale: >
+    Protocol abuse is well-documented technique; barrier is reaching a
+    protocol-speaking position, not the abuse itself. Mode reflects the
+    annualised likelihood of an adversary establishing the foothold and
+    executing the protocol-level commands.
+
+loss_magnitude:
+  primary_response:
+    min: 500000
+    mode: 3000000
+    max: 20000000
+  secondary_response:
+    min: 1500000
+    mode: 35000000
+    max: 500000000
+    notes: Industrial-customer compensation, possible gas-fired generation impact, AER inquiry, brand damage
+  currency: AUD
+
+controls_suggested:
+  - id: AESCSF-MC-01
+    name: Network monitoring of OT protocols with anomaly detection
+    framework: AESCSF
+  - id: PR.AC-5
+    name: Segmentation between IT and OT enforced and monitored
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-7
+    name: Two-person rule for pressure-regulator setpoint changes
+    framework: SOCI-CIRMP
+
+references:
+  - "CISA advisory AA22-103A: APT cyber tools targeting ICS/SCADA devices"
+  - "Dragos OT Cybersecurity Year in Review 2024-2025"
+  - "DNP3 and Modbus security guidance — NIST SP 800-82r3"
+  - "Australian Pipelines and Gas Association guidance"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, gas asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

@@ -1,0 +1,117 @@
+id: GAS-003
+title: Custody-transfer metering tampering causing commercial disputes
+version: 1.0.0
+sector: gas
+soci_asset_class: gas
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises the custody-transfer metering system at a pipeline
+  interconnect point and subtly manipulates flow measurements, generating
+  commercial disputes between operators and shippers and undermining trust
+  in the pipeline's data. The economic incentive scales with throughput,
+  making custody-transfer points a target for financially-motivated actors
+  and state-aligned actors pursuing economic disruption.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1078
+      name: Valid Accounts
+    - id: T1565
+      name: Data Manipulation
+    - id: T1485
+      name: Data Destruction
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Financially-motivated actor with ICS access
+    scannable: true
+    criticality: low
+
+  - id: metering_supervisory_station
+    type: ot_asset
+    description: Supervisory station at the custody-transfer point
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: high
+
+  - id: custody_transfer_flow_computer
+    type: ot_asset
+    description: Certified flow computer (Coriolis, ultrasonic) producing custody figures
+    scannable: false
+    reason_unscannable: embedded_constrained_device
+    criticality: critical
+    consequence_type: integrity
+
+  - id: commercial_settlement_system
+    type: it_asset
+    description: Commercial system consuming flow data for settlement
+    scannable: true
+    criticality: high
+    consequence_type: integrity
+
+edges:
+  - from: external_attacker
+    to: metering_supervisory_station
+    technique: T1078
+    detection_difficulty: high
+
+  - from: metering_supervisory_station
+    to: custody_transfer_flow_computer
+    technique: T1565
+    detection_difficulty: very_high
+    notes: Subtle calibration tampering; below the noise floor of certified verification cycle
+
+  - from: custody_transfer_flow_computer
+    to: commercial_settlement_system
+    technique: T1485
+    detection_difficulty: high
+    notes: Manipulated values flow downstream and drive settlement
+
+likelihood:
+  annual_frequency:
+    min: 0.001
+    mode: 0.015
+    max: 0.06
+  rationale: >
+    Low base rate but elevated incentive at large custody-transfer points.
+    Mode reflects increased OT-protocol-aware tooling in cyber-criminal
+    inventories per Dragos and Mandiant.
+
+loss_magnitude:
+  primary_response:
+    min: 250000
+    mode: 1500000
+    max: 8000000
+  secondary_response:
+    min: 1500000
+    mode: 25000000
+    max: 300000000
+    notes: Commercial disputes between operators and shippers, possible re-settlement of historical periods, regulator inquiry under National Gas Rules
+  currency: AUD
+
+controls_suggested:
+  - id: CIRMP-CYBER-7
+    name: Two-person rule for metering configuration changes
+    framework: SOCI-CIRMP
+  - id: PR.DS-6
+    name: Integrity checking mechanisms on flow data
+    framework: NIST-CSF
+  - id: AESCSF-AC-06
+    name: User-activity monitoring on metering supervisory stations
+    framework: AESCSF
+
+references:
+  - "AEMC and AER National Gas Rules on custody transfer and settlement"
+  - "Dragos OT Cybersecurity Year in Review 2024-2025"
+  - "Mandiant ICS threat reports on metering-system targeting"
+  - "API MPMS Chapter 21 on electronic flow measurement"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, gas asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

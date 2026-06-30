@@ -1,0 +1,129 @@
+id: HLT-002
+title: PACS imaging-system exfiltration and double-extortion ransomware
+version: 1.0.0
+sector: healthcare
+soci_asset_class: health_care_and_medical
+classification: TLP:CLEAR
+
+summary: >
+  An attacker reaches the Picture Archiving and Communication System (PACS)
+  and exfiltrates patient imaging and reports before deploying ransomware.
+  PACS data — including faces, identifiers, and diagnoses — is particularly
+  sensitive. The double-extortion model adds publication threat to the
+  encryption event. Anchored to multiple AU and international healthcare
+  PACS ransomware incidents 2022-2025 and OAIC NDB statistics consistently
+  ranking healthcare as the most-affected sector.
+
+mitre_attack:
+  tactics: [TA0001, TA0008, TA0040]
+  techniques:
+    - id: T1078
+      name: Valid Accounts
+    - id: T1213
+      name: Data from Information Repositories
+    - id: T1486
+      name: Data Encrypted for Impact
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Ransomware affiliate with healthcare-targeting playbook
+    scannable: true
+    criticality: low
+
+  - id: clinician_credential
+    type: it_asset
+    description: Stolen clinician credentials from prior breach
+    scannable: true
+    criticality: high
+
+  - id: pacs_application_server
+    type: it_asset
+    description: PACS application server
+    scannable: true
+    criticality: critical
+    consequence_type: availability
+
+  - id: pacs_imaging_archive
+    type: data_store
+    description: Imaging archive containing patient scans and reports
+    scannable: true
+    criticality: critical
+    consequence_type: confidentiality
+
+  - id: legacy_radiology_workstation
+    type: it_asset
+    description: Radiology workstation running unsupported OS
+    scannable: false
+    reason_unscannable: legacy_unsupported_os
+    criticality: high
+
+edges:
+  - from: external_attacker
+    to: clinician_credential
+    technique: T1078
+    detection_difficulty: medium
+
+  - from: clinician_credential
+    to: pacs_application_server
+    technique: T1078
+    detection_difficulty: high
+
+  - from: pacs_application_server
+    to: pacs_imaging_archive
+    technique: T1213
+    detection_difficulty: high
+
+  - from: pacs_application_server
+    to: legacy_radiology_workstation
+    technique: T1486
+    detection_difficulty: low
+
+likelihood:
+  annual_frequency:
+    min: 0.05
+    mode: 0.20
+    max: 0.50
+  rationale: >
+    Healthcare ransomware is the highest-frequency sector for AU per OAIC
+    NDB and ACSC reports. Mode reflects the elevated targeting of imaging
+    and EMR systems specifically.
+
+loss_magnitude:
+  primary_response:
+    min: 500000
+    mode: 3500000
+    max: 18000000
+  secondary_response:
+    min: 1500000
+    mode: 35000000
+    max: 400000000
+    notes: OAIC NDB at scale, possible class action, ED diversion, cancelled elective procedures, public-health investigation
+  currency: AUD
+
+controls_suggested:
+  - id: E8-MFA
+    name: Phishing-resistant MFA on clinician accounts
+    framework: Essential-Eight
+  - id: E8-BACKUPS
+    name: Daily backups with offline copy and tested recovery
+    framework: Essential-Eight
+  - id: PR.AC-5
+    name: Network segmentation between corporate and clinical networks
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-9
+    name: Tested incident response and clinical-fallback procedure
+    framework: SOCI-CIRMP
+
+references:
+  - "OAIC Notifiable Data Breaches reports 2022 H1 through 2025 H2"
+  - "ACSC, Annual Cyber Threat Report 2024-25 — health sector"
+  - "HC3 (US HHS) healthcare cybersecurity advisories"
+  - "Health Sector Cybersecurity Coordination Center reports 2023-2025"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, health care and medical asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

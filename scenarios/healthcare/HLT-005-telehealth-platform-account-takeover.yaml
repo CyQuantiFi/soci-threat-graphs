@@ -1,0 +1,112 @@
+id: HLT-005
+title: Telehealth platform mass account takeover exposing consultations
+version: 1.0.0
+sector: healthcare
+soci_asset_class: health_care_and_medical
+classification: TLP:CLEAR
+
+summary: >
+  An attacker uses credential stuffing and an exploited authentication
+  weakness in a telehealth platform to take over patient and clinician
+  accounts at scale, accessing recorded consultations, prescriptions,
+  and chat messages. Reflects the growth of telehealth in AU post-2020
+  and the OAIC NDB statistics on health-sector data breaches.
+
+mitre_attack:
+  tactics: [TA0001, TA0009]
+  techniques:
+    - id: T1110
+      name: Brute Force
+    - id: T1078
+      name: Valid Accounts
+    - id: T1530
+      name: Data from Cloud Storage
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Adversary armed with credential lists from unrelated breaches
+    scannable: true
+    criticality: low
+
+  - id: telehealth_login_endpoint
+    type: it_asset
+    description: Telehealth platform public login endpoint
+    scannable: true
+    criticality: high
+    consequence_type: confidentiality
+
+  - id: telehealth_api
+    type: it_asset
+    description: Telehealth API backend
+    scannable: true
+    criticality: high
+
+  - id: consultation_archive
+    type: data_store
+    description: Recorded consultations, prescriptions, chat messages
+    scannable: true
+    criticality: critical
+    consequence_type: confidentiality
+
+edges:
+  - from: external_attacker
+    to: telehealth_login_endpoint
+    technique: T1110
+    detection_difficulty: low
+
+  - from: external_attacker
+    to: telehealth_api
+    technique: T1078
+    detection_difficulty: medium
+
+  - from: telehealth_api
+    to: consultation_archive
+    technique: T1530
+    detection_difficulty: high
+
+likelihood:
+  annual_frequency:
+    min: 0.10
+    mode: 0.30
+    max: 0.65
+  rationale: >
+    Credential stuffing against AU online services is near-continuous.
+    Mode reflects the likelihood that at least one AU telehealth platform
+    experiences a successful account-takeover event in a 12-month window.
+
+loss_magnitude:
+  primary_response:
+    min: 200000
+    mode: 1200000
+    max: 6000000
+  secondary_response:
+    min: 750000
+    mode: 12000000
+    max: 200000000
+    notes: OAIC NDB at scale, possible class action, regulatory inquiry, brand damage, possible doctor regulator action
+  currency: AUD
+
+controls_suggested:
+  - id: E8-MFA
+    name: MFA on telehealth accounts including patient accounts
+    framework: Essential-Eight
+  - id: PR.AC-7
+    name: Users authenticated commensurate with risk; rate limiting
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-10
+    name: Telehealth abuse monitoring and credential-stuffing detection
+    framework: SOCI-CIRMP
+
+references:
+  - "OAIC Notifiable Data Breaches reports 2022 H1 through 2025 H2 — health sector"
+  - "AHPRA telehealth practice standards"
+  - "Department of Health, MBS telehealth items and security guidance"
+  - "OWASP Credential Stuffing Prevention Cheat Sheet"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, health care and medical asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

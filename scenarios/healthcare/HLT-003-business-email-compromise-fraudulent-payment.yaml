@@ -1,0 +1,114 @@
+id: HLT-003
+title: Business email compromise driving fraudulent vendor payment
+version: 1.0.0
+sector: healthcare
+soci_asset_class: health_care_and_medical
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises a finance team email account at a hospital network
+  via phishing, monitors invoice traffic, and impersonates a real medical-
+  equipment vendor to redirect a high-value payment to an attacker-controlled
+  account. Pattern is the highest-frequency cyber financial-fraud event
+  per ACSC ReportCyber statistics and is well documented in AU healthcare.
+
+mitre_attack:
+  tactics: [TA0001, TA0009, TA0040]
+  techniques:
+    - id: T1566
+      name: Phishing
+    - id: T1114
+      name: Email Collection
+    - id: T1565
+      name: Data Manipulation
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: BEC actor with healthcare-targeting playbook
+    scannable: true
+    criticality: low
+
+  - id: finance_email_account
+    type: it_asset
+    description: Hospital finance-team mailbox
+    scannable: true
+    criticality: high
+    consequence_type: confidentiality
+
+  - id: invoice_workflow
+    type: it_asset
+    description: Invoice approval workflow
+    scannable: true
+    criticality: high
+    consequence_type: integrity
+
+  - id: hospital_bank_account
+    type: it_asset
+    description: Hospital operational bank account
+    scannable: true
+    criticality: critical
+    consequence_type: financial
+
+edges:
+  - from: external_attacker
+    to: finance_email_account
+    technique: T1566
+    detection_difficulty: medium
+
+  - from: finance_email_account
+    to: invoice_workflow
+    technique: T1114
+    detection_difficulty: high
+
+  - from: invoice_workflow
+    to: hospital_bank_account
+    technique: T1565
+    detection_difficulty: high
+    notes: Vendor bank-detail change appears legitimate
+
+likelihood:
+  annual_frequency:
+    min: 0.05
+    mode: 0.20
+    max: 0.50
+  rationale: >
+    BEC is the highest-volume financial-fraud category per ACSC ReportCyber.
+    Mode reflects the likelihood that a large AU hospital network experiences
+    at least one successful BEC event in a 12-month window.
+
+loss_magnitude:
+  primary_response:
+    min: 50000
+    mode: 250000
+    max: 2000000
+  secondary_response:
+    min: 200000
+    mode: 1500000
+    max: 30000000
+    notes: Direct fraud loss, possible AFP and bank recovery, audit consequence, governance review
+  currency: AUD
+
+controls_suggested:
+  - id: E8-MFA
+    name: MFA on email accounts
+    framework: Essential-Eight
+  - id: PR.AC-7
+    name: Two-person verification of bank-detail changes
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-7
+    name: Two-person rule for finance changes over a defined threshold
+    framework: SOCI-CIRMP
+
+references:
+  - "ACSC ReportCyber statistics 2023-25 — BEC"
+  - "ASD/ACSC, Annual Cyber Threat Report 2024-25 — BEC and financial fraud"
+  - "FBI IC3 Annual Reports 2023-2025"
+  - "AUSTRAC publications on financial-crime typologies"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, health care and medical asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

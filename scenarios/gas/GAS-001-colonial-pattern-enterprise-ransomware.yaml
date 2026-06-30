@@ -1,0 +1,126 @@
+id: GAS-001
+title: Enterprise ransomware forcing precautionary pipeline shutdown
+version: 1.0.0
+sector: gas
+soci_asset_class: gas
+classification: TLP:CLEAR
+
+summary: >
+  Ransomware encrypts the gas pipeline operator's enterprise IT environment
+  — billing, scheduling, and the corporate file shares used to coordinate
+  field operations and customer nominations. Although OT systems are not
+  directly affected, the operator initiates a precautionary shutdown of
+  pipeline operations until confidence in IT/OT segmentation is restored.
+  Closely follows the 2021 Colonial Pipeline incident in the US and remains
+  the most-cited reference for cyber-driven pipeline shutdowns.
+
+mitre_attack:
+  tactics: [TA0001, TA0008, TA0040]
+  techniques:
+    - id: T1078
+      name: Valid Accounts
+    - id: T1486
+      name: Data Encrypted for Impact
+    - id: T1490
+      name: Inhibit System Recovery
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Ransomware-as-a-service affiliate (e.g. DarkSide-pattern)
+    scannable: true
+    criticality: low
+
+  - id: legacy_vpn_account
+    type: it_asset
+    description: Legacy VPN account without MFA — initial access vector
+    scannable: true
+    criticality: high
+
+  - id: corporate_active_directory
+    type: it_asset
+    description: AD controlling user identity across the corporate environment
+    scannable: true
+    criticality: critical
+
+  - id: enterprise_scheduling_billing
+    type: it_asset
+    description: Pipeline scheduling, nomination, and billing systems
+    scannable: true
+    criticality: critical
+    consequence_type: availability
+
+  - id: it_ot_boundary
+    type: it_asset
+    description: IT/OT segmentation boundary — operator must verify integrity before resuming
+    scannable: true
+    criticality: critical
+
+edges:
+  - from: external_attacker
+    to: legacy_vpn_account
+    technique: T1078
+    detection_difficulty: high
+    notes: Stolen credentials from prior breach; no MFA
+
+  - from: legacy_vpn_account
+    to: corporate_active_directory
+    technique: T1078
+    detection_difficulty: high
+
+  - from: corporate_active_directory
+    to: enterprise_scheduling_billing
+    technique: T1486
+    detection_difficulty: low
+
+  - from: enterprise_scheduling_billing
+    to: it_ot_boundary
+    technique: T1490
+    detection_difficulty: medium
+    notes: Loss of confidence triggers operator-initiated OT shutdown
+
+likelihood:
+  annual_frequency:
+    min: 0.02
+    mode: 0.10
+    max: 0.35
+  rationale: >
+    Pipeline operators are a high-profile ransomware target globally. Mode
+    anchored to disclosed incidents 2021-2025 and the increasing frequency
+    of cyber-driven precautionary shutdowns in the sector.
+
+loss_magnitude:
+  primary_response:
+    min: 1500000
+    mode: 8000000
+    max: 50000000
+  secondary_response:
+    min: 5000000
+    mode: 60000000
+    max: 800000000
+    notes: Supply disruption to industrial customers, power generators, residential heating in cold snaps; AER and ACCC inquiry; market impact
+  currency: AUD
+
+controls_suggested:
+  - id: E8-MFA
+    name: MFA on all remote access including legacy
+    framework: Essential-Eight
+  - id: E8-BACKUPS
+    name: Daily backups with offline copy and tested recovery
+    framework: Essential-Eight
+  - id: CIRMP-CYBER-9
+    name: Tested incident response and business continuity plan including IT-incident-triggered OT shutdown procedure
+    framework: SOCI-CIRMP
+
+references:
+  - "Colonial Pipeline ransomware incident, May 2021"
+  - "TSA Security Directives Pipeline-2021-01, 02 and successors"
+  - "CISA advisory AA21-131A: DarkSide ransomware"
+  - "ACSC, Annual Cyber Threat Report 2024-25"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, gas asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

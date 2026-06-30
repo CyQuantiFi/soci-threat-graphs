@@ -1,0 +1,126 @@
+id: ELE-002
+title: Distribution Management System ransomware halting outage restoration
+version: 1.0.0
+sector: electricity
+soci_asset_class: electricity
+classification: TLP:CLEAR
+
+summary: >
+  Ransomware encrypts the Distribution Management System (DMS) and outage-
+  management workstations used by a distribution network operator. Field
+  switching, restoration coordination, and customer outage notifications
+  fall back to manual or paper-based processes. Pattern matches the documented
+  pressure on AU DNSPs during ransomware incidents 2022-2025 and CISA's
+  ongoing advisories on ransomware in the energy sector.
+
+mitre_attack:
+  tactics: [TA0001, TA0008, TA0040]
+  techniques:
+    - id: T1566
+      name: Phishing
+    - id: T1486
+      name: Data Encrypted for Impact
+    - id: T1021
+      name: Remote Services
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Ransomware-as-a-service affiliate
+    scannable: true
+    criticality: low
+
+  - id: control_room_workstation
+    type: it_asset
+    description: Operator workstation in the network control room
+    scannable: true
+    criticality: high
+
+  - id: dms_server
+    type: it_asset
+    description: Distribution Management System server cluster
+    scannable: true
+    criticality: critical
+    consequence_type: availability
+
+  - id: outage_management_system
+    type: it_asset
+    description: Outage Management System used to coordinate field restoration
+    scannable: true
+    criticality: critical
+    consequence_type: availability
+
+  - id: customer_notification_platform
+    type: it_asset
+    description: SMS and IVR systems for customer outage notifications
+    scannable: true
+    criticality: high
+    consequence_type: availability
+
+edges:
+  - from: external_attacker
+    to: control_room_workstation
+    technique: T1566
+    detection_difficulty: medium
+
+  - from: control_room_workstation
+    to: dms_server
+    technique: T1021
+    detection_difficulty: high
+
+  - from: dms_server
+    to: outage_management_system
+    technique: T1486
+    detection_difficulty: low
+
+  - from: dms_server
+    to: customer_notification_platform
+    technique: T1486
+    detection_difficulty: low
+
+likelihood:
+  annual_frequency:
+    min: 0.02
+    mode: 0.10
+    max: 0.30
+  rationale: >
+    DNSP control-room IT environments are within the standard ransomware
+    blast radius. Mode anchored to disclosed AU and international DNSP
+    incidents 2022-2025; max reflects increased ransomware velocity in
+    the energy sector noted in ACSC and CISA reports.
+
+loss_magnitude:
+  primary_response:
+    min: 1000000
+    mode: 5000000
+    max: 25000000
+  secondary_response:
+    min: 3000000
+    mode: 40000000
+    max: 400000000
+    notes: AER penalty exposure, Guaranteed Service Levels breaches, customer compensation, extended restoration times, brand damage, parliamentary scrutiny
+  currency: AUD
+
+controls_suggested:
+  - id: E8-BACKUPS
+    name: Daily backups with offline copy and tested recovery
+    framework: Essential-Eight
+  - id: PR.AC-5
+    name: Segmentation between corporate and control networks
+    framework: NIST-CSF
+  - id: AESCSF-MC-02
+    name: Manual fallback procedures for DMS and OMS
+    framework: AESCSF
+
+references:
+  - "ACSC, Annual Cyber Threat Report 2024-25 — energy sector"
+  - "CISA energy sector advisories 2022-2025"
+  - "Australian Energy Sector Cyber Security Framework (AESCSF), AEMO"
+  - "AER Guaranteed Service Levels and Customer Service Standards"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, electricity asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

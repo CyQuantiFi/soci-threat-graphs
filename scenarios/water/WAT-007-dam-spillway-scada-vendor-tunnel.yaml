@@ -1,0 +1,132 @@
+id: WAT-007
+title: Dam spillway control compromised via OEM vendor remote-support tunnel
+version: 1.0.0
+sector: water
+soci_asset_class: water_and_sewerage
+classification: TLP:CLEAR
+
+summary: >
+  An adversary compromises an OEM vendor's remote-support environment and
+  uses a persistent tunnel into the dam-control SCADA to issue unauthorised
+  spillway or release-valve commands. Even minor unauthorised releases
+  affect downstream flood risk, agricultural users, hydroelectric scheduling,
+  and environmental flow obligations. The 2013 disclosure of a US dam SCADA
+  intrusion (Bowman Avenue Dam, NY) established the scenario in public
+  literature; the AESCSF supply-chain control area treats vendor tunnels as
+  a top-tier risk for water-bulk operators.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1199
+      name: Trusted Relationship
+    - id: T0855
+      name: Unauthorized Command Message
+    - id: T0831
+      name: Manipulation of Control
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Capable adversary targeting an OT vendor's environment
+    scannable: true
+    criticality: low
+
+  - id: oem_vendor_environment
+    type: vendor_asset
+    description: OEM SCADA vendor's remote-support platform
+    scannable: false
+    reason_unscannable: third_party_no_access
+    criticality: high
+
+  - id: vendor_remote_tunnel
+    type: ot_asset
+    description: Persistent encrypted tunnel between vendor and dam-control SCADA
+    scannable: false
+    reason_unscannable: operational_disruption_risk
+    criticality: high
+
+  - id: dam_scada_master
+    type: ot_asset
+    description: Dam control SCADA master, supervises spillway and release valves
+    scannable: false
+    reason_unscannable: safety_critical_air_gapped
+    criticality: critical
+    consequence_type: physical_safety
+
+  - id: spillway_actuator
+    type: ot_asset
+    description: Hydraulic actuator controlling spillway gates
+    scannable: false
+    reason_unscannable: embedded_constrained_device
+    criticality: critical
+    consequence_type: physical_safety
+
+edges:
+  - from: external_attacker
+    to: oem_vendor_environment
+    technique: T1199
+    detection_difficulty: very_high
+
+  - from: oem_vendor_environment
+    to: vendor_remote_tunnel
+    technique: T1199
+    detection_difficulty: high
+
+  - from: vendor_remote_tunnel
+    to: dam_scada_master
+    technique: T0855
+    detection_difficulty: very_high
+    notes: Command appears as legitimate vendor session
+
+  - from: dam_scada_master
+    to: spillway_actuator
+    technique: T0831
+    detection_difficulty: very_high
+
+likelihood:
+  annual_frequency:
+    min: 0.0005
+    mode: 0.008
+    max: 0.04
+  rationale: >
+    Very low base rate per disclosed incidents but consequence severity is
+    catastrophic. Mode reflects the small set of AU bulk-water operators
+    sharing common OEM vendors and the post-2020 elevation of supply-chain
+    risk in CISA and ACSC advisories.
+
+loss_magnitude:
+  primary_response:
+    min: 1000000
+    mode: 5000000
+    max: 30000000
+  secondary_response:
+    min: 5000000
+    mode: 80000000
+    max: 1500000000
+    notes: Downstream flooding, infrastructure damage, agricultural compensation, environmental remediation, possible loss of life with associated coronial inquiry
+  currency: AUD
+
+controls_suggested:
+  - id: CIRMP-CYBER-12
+    name: Vendor remote-access logging and time-bound, two-person approval
+    framework: SOCI-CIRMP
+  - id: AESCSF-SP-01
+    name: Supply chain risk assessment for OT vendors
+    framework: AESCSF
+  - id: PR.AC-3
+    name: Remote access is managed
+    framework: NIST-CSF
+
+references:
+  - "Bowman Avenue Dam, NY intrusion (Iranian actor), disclosed 2016 (events 2013)"
+  - "ICS-CERT advisories on dam and lock control systems"
+  - "Australian Energy Sector Cyber Security Framework — supply-chain control area"
+  - "ASD/ACSC, Annual Cyber Threat Report 2024-25 — supply chain"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, water and sewerage asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

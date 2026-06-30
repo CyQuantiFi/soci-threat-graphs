@@ -1,0 +1,129 @@
+id: POR-002
+title: Ship-to-shore crane control tampering disrupting vessel discharge
+version: 1.0.0
+sector: ports
+soci_asset_class: ports
+classification: TLP:CLEAR
+
+summary: >
+  An attacker reaches the operator workstation network for ship-to-shore (STS)
+  cranes and either prevents operator commands reaching the crane PLCs or
+  alters operating-envelope parameters. Vessel discharge halts and resumes
+  manual control with safety-officer escort, sharply reducing throughput.
+  The 2024 Wall Street Journal and US Government reporting on Chinese-built
+  STS crane cyber risk and the documented Konecranes vulnerabilities
+  anchor the scenario.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1199
+      name: Trusted Relationship
+    - id: T0855
+      name: Unauthorized Command Message
+    - id: T0836
+      name: Modify Parameter
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Capable adversary, possibly state-aligned
+    scannable: true
+    criticality: low
+
+  - id: oem_crane_remote_support
+    type: vendor_asset
+    description: OEM STS-crane vendor's remote-support environment
+    scannable: false
+    reason_unscannable: third_party_no_access
+    criticality: high
+
+  - id: crane_operator_workstation
+    type: ot_asset
+    description: STS-crane operator workstation in the terminal
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: high
+
+  - id: crane_plc
+    type: ot_asset
+    description: PLC controlling crane motion and load handling
+    scannable: false
+    reason_unscannable: safety_critical_air_gapped
+    criticality: critical
+    consequence_type: physical_safety
+
+  - id: vessel_discharge_operation
+    type: ot_asset
+    description: Discharge operation gated on functional cranes
+    scannable: false
+    reason_unscannable: operational_disruption_risk
+    criticality: critical
+    consequence_type: availability
+
+edges:
+  - from: external_attacker
+    to: oem_crane_remote_support
+    technique: T1199
+    detection_difficulty: very_high
+
+  - from: oem_crane_remote_support
+    to: crane_operator_workstation
+    technique: T1199
+    detection_difficulty: high
+
+  - from: crane_operator_workstation
+    to: crane_plc
+    technique: T0836
+    detection_difficulty: very_high
+
+  - from: crane_plc
+    to: vessel_discharge_operation
+    technique: T0855
+    detection_difficulty: low
+
+likelihood:
+  annual_frequency:
+    min: 0.0005
+    mode: 0.008
+    max: 0.04
+  rationale: >
+    Low base rate per disclosed incidents but increased attention to crane
+    cyber risk in 2024-2025 reporting. Mode reflects elevated state-actor
+    targeting of port equipment in CISA AA24-038A and successors.
+
+loss_magnitude:
+  primary_response:
+    min: 1000000
+    mode: 5000000
+    max: 30000000
+  secondary_response:
+    min: 5000000
+    mode: 70000000
+    max: 800000000
+    notes: Vessel demurrage, shipper compensation, berth congestion, supply-chain knock-on, regulator inquiry under SOCI enforcement
+  currency: AUD
+
+controls_suggested:
+  - id: CIRMP-CYBER-12
+    name: OEM remote-access governance and two-person time-bound approval
+    framework: SOCI-CIRMP
+  - id: PR.AC-3
+    name: Remote access is managed
+    framework: NIST-CSF
+  - id: AESCSF-SP-01
+    name: OEM supply-chain risk assessment
+    framework: AESCSF
+
+references:
+  - "Wall Street Journal, US House Committee on Homeland Security reports on Chinese-built STS crane cyber risk, 2024"
+  - "Konecranes and other crane OEM vulnerabilities disclosed 2022-2025"
+  - "CISA Maritime Transportation System cyber resilience publications"
+  - "Department of Home Affairs, Maritime Industry Security publications"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, ports asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT

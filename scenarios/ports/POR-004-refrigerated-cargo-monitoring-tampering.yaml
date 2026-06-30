@@ -1,0 +1,116 @@
+id: POR-004
+title: Refrigerated cargo monitoring tampering causing perishable losses
+version: 1.0.0
+sector: ports
+soci_asset_class: ports
+classification: TLP:CLEAR
+
+summary: >
+  An attacker compromises the reefer-monitoring system that aggregates
+  temperature telemetry from refrigerated containers awaiting shipment or
+  in storage. By suppressing alarms or silently altering setpoints, the
+  attacker causes cold-chain failures across a large reefer population.
+  Loss event is high-value perishable cargo and class-action exposure.
+  Pattern reflects general IoT-aggregator security weakness documented
+  in maritime cyber reports.
+
+mitre_attack:
+  tactics: [TA0001, TA0040]
+  techniques:
+    - id: T1190
+      name: Exploit Public-Facing Application
+    - id: T0836
+      name: Modify Parameter
+    - id: T0809
+      name: Block Reporting Message
+
+nodes:
+  - id: external_attacker
+    type: external
+    description: Adversary with financial or grievance motive
+    scannable: true
+    criticality: low
+
+  - id: reefer_monitoring_platform
+    type: it_asset
+    description: Centralised reefer-monitoring platform
+    scannable: true
+    criticality: high
+    consequence_type: integrity
+
+  - id: reefer_gateway
+    type: ot_asset
+    description: Yard-level reefer gateway
+    scannable: false
+    reason_unscannable: vendor_support_prohibits_agents
+    criticality: high
+
+  - id: reefer_population
+    type: iot_asset
+    description: Population of refrigerated containers with embedded controllers
+    scannable: false
+    reason_unscannable: embedded_constrained_device
+    criticality: high
+    consequence_type: integrity
+
+edges:
+  - from: external_attacker
+    to: reefer_monitoring_platform
+    technique: T1190
+    detection_difficulty: medium
+
+  - from: reefer_monitoring_platform
+    to: reefer_gateway
+    technique: T0809
+    detection_difficulty: high
+    notes: Suppression of alarms; setpoint changes propagated to containers
+
+  - from: reefer_gateway
+    to: reefer_population
+    technique: T0836
+    detection_difficulty: very_high
+
+likelihood:
+  annual_frequency:
+    min: 0.001
+    mode: 0.015
+    max: 0.07
+  rationale: >
+    Low base rate per disclosed incidents; consequence severity grows with
+    perishable-cargo throughput at major AU container terminals.
+
+loss_magnitude:
+  primary_response:
+    min: 250000
+    mode: 1500000
+    max: 8000000
+  secondary_response:
+    min: 1500000
+    mode: 25000000
+    max: 250000000
+    notes: Cold-chain failure compensation to shippers, possible biosecurity and food-safety issues, class action under cargo-handling contracts
+  currency: AUD
+
+controls_suggested:
+  - id: PR.DS-6
+    name: Integrity checking on reefer telemetry
+    framework: NIST-CSF
+  - id: CIRMP-CYBER-3
+    name: Inventory and assurance of IoT-class reefer devices
+    framework: SOCI-CIRMP
+  - id: PR.AC-7
+    name: Strong authentication on reefer-monitoring platform
+    framework: NIST-CSF
+
+references:
+  - "ENISA Port Cybersecurity, latest edition"
+  - "BIMCO Guidelines on Cyber Security Onboard Ships"
+  - "ACSC, Annual Cyber Threat Report 2024-25 — transport sector"
+  - "Department of Home Affairs Maritime Industry Security publications"
+  - "Australian Government, Security of Critical Infrastructure Act 2018, ports asset class"
+
+maintainers:
+  - "@cyquantifi"
+contributors: []
+last_reviewed: "2026-06-30"
+license: MIT
