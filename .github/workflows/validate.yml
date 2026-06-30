@@ -1,0 +1,22 @@
+name: Validate scenarios
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install pyyaml jsonschema
+      - name: Validate every scenario
+        run: python tools/validate.py
+      - name: Check review age (strict on main)
+        if: github.ref == 'refs/heads/main'
+        run: python tools/validate.py --strict-review-age
