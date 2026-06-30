@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>HLT-003 — Business email compromise driving fraudulent vendor payment | SOCI Threat Atlas</title>
+<meta name="description" content="An attacker compromises a finance team email account at a hospital network via phishing, monitors invoice traffic, and impersonates a real medical- equipment ve">
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 860px; margin: 2em auto;
+         padding: 0 1em; color: #1f2937; background: #fafafa; }
+  h1 { color: #1f2937; border-bottom: 3px solid #FF8818; padding-bottom: .3em; }
+  h2 { color: #EA7A10; margin-top: 1.5em; }
+  .meta { color: #6b7280; font-size: .9em; }
+  .chip { display: inline-block; padding: 2px 10px; margin: 2px;
+          background: #fff7ed; color: #EA7A10; border: 1px solid #fed7aa;
+          border-radius: 12px; font-size: .85em; }
+  .chip.unscannable { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .cta { background: #fff; border: 2px solid #FF8818; border-radius: 8px;
+         padding: 1.2em; margin: 2em 0; }
+  .cta a { background: #FF8818; color: white; padding: .6em 1.2em;
+           text-decoration: none; border-radius: 6px; font-weight: 600;
+           display: inline-block; margin-top: .6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { text-align: left; padding: .5em; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f3f4f6; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px;
+         font-family: 'SFMono-Regular', Consolas, monospace; font-size: .9em; }
+  pre { background: #f3f4f6; padding: 1em; border-radius: 6px; overflow-x: auto; }
+  .footer { color: #9ca3af; font-size: .85em; margin-top: 3em;
+            border-top: 1px solid #e5e7eb; padding-top: 1em; }
+</style>
+</head><body>
+<p class="meta"><a href="../index.html">&larr; SOCI Threat Atlas</a> · Sector: healthcare ·
+  Asset class: health_care_and_medical · TLP:CLEAR</p>
+<h1>HLT-003 · Business email compromise driving fraudulent vendor payment</h1>
+<p>An attacker compromises a finance team email account at a hospital network via phishing, monitors invoice traffic, and impersonates a real medical- equipment vendor to redirect a high-value payment to an attacker-controlled account. Pattern is the highest-frequency cyber financial-fraud event per ACSC ReportCyber statistics and is well documented in AU healthcare.
+</p>
+
+<h2>MITRE ATT&amp;CK mapping</h2>
+<p><strong>Tactics:</strong> <span class="chip">TA0001</span> <span class="chip">TA0009</span> <span class="chip">TA0040</span></p>
+<p><strong>Techniques:</strong> <span class="chip">T1566 Phishing</span> <span class="chip">T1114 Email Collection</span> <span class="chip">T1565 Data Manipulation</span></p>
+
+<h2>Nodes</h2>
+<table><thead><tr><th>ID</th><th>Type</th><th>Description</th><th>Criticality</th><th>Scannable?</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code></td><td>external</td><td>BEC actor with healthcare-targeting playbook</td><td>low</td><td><span class="chip">scannable</span></td></tr><tr><td><code>finance_email_account</code></td><td>it_asset</td><td>Hospital finance-team mailbox</td><td>high</td><td><span class="chip">scannable</span></td></tr><tr><td><code>invoice_workflow</code></td><td>it_asset</td><td>Invoice approval workflow</td><td>high</td><td><span class="chip">scannable</span></td></tr><tr><td><code>hospital_bank_account</code></td><td>it_asset</td><td>Hospital operational bank account</td><td>critical</td><td><span class="chip">scannable</span></td></tr></tbody></table>
+
+<h2>Edges</h2>
+<table><thead><tr><th>From → To</th><th>Technique</th><th>Detection</th><th>Notes</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code> → <code>finance_email_account</code></td><td><code>T1566</code></td><td>medium</td><td></td></tr><tr><td><code>finance_email_account</code> → <code>invoice_workflow</code></td><td><code>T1114</code></td><td>high</td><td></td></tr><tr><td><code>invoice_workflow</code> → <code>hospital_bank_account</code></td><td><code>T1565</code></td><td>high</td><td>Vendor bank-detail change appears legitimate</td></tr></tbody></table>
+
+<h2>Priors (Beta-PERT)</h2>
+<p><strong>Annual frequency:</strong> min 0.05 · mode 0.2 · max 0.5</p>
+<p class="meta">BEC is the highest-volume financial-fraud category per ACSC ReportCyber. Mode reflects the likelihood that a large AU hospital network experiences at least one successful BEC event in a 12-month window.
+</p>
+<p><strong>Primary response (AUD):</strong>
+   $50,000 / $250,000 / $2,000,000</p>
+<p><strong>Secondary response (AUD):</strong>
+   $200,000 / $1,500,000 / $30,000,000</p>
+
+<div class="cta">
+  <strong>Want a calibrated probability for your operator?</strong>
+  <p class="meta">The atlas gives you a defensible prior. CyQuantiFi runs Monte Carlo against
+  your own asset inventory, refines the prior with calibrated expert input, and outputs ALE
+  in dollars — ready for a CIRMP or board paper.</p>
+  <a href="https://app.cyquantifi.com/import?scenario=HLT-003">Run HLT-003 in CyQuantiFi &rarr;</a>
+</div>
+
+<h2>Suggested controls</h2>
+<ul>
+<li><code>E8-MFA</code> — MFA on email accounts <span class='meta'>(Essential-Eight)</span></li><li><code>PR.AC-7</code> — Two-person verification of bank-detail changes <span class='meta'>(NIST-CSF)</span></li><li><code>CIRMP-CYBER-7</code> — Two-person rule for finance changes over a defined threshold <span class='meta'>(SOCI-CIRMP)</span></li>
+</ul>
+
+<h2>References</h2>
+<ul><li>ACSC ReportCyber statistics 2023-25 — BEC</li>
+<li>ASD/ACSC, Annual Cyber Threat Report 2024-25 — BEC and financial fraud</li>
+<li>FBI IC3 Annual Reports 2023-2025</li>
+<li>AUSTRAC publications on financial-crime typologies</li>
+<li>Australian Government, Security of Critical Infrastructure Act 2018, health care and medical asset class</li></ul>
+
+<p class="footer">
+  Version 1.0.0 · Last reviewed 2026-06-30 ·
+  Maintainers: @cyquantifi ·
+  MIT-licensed · Maintained by <a href="https://cyquantifi.com">CyQuantiFi Pty Ltd</a>
+</p>
+</body></html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>GAS-006 — Cathodic-protection IoT tampering accelerating pipeline corrosion | SOCI Threat Atlas</title>
+<meta name="description" content="An attacker compromises the cellular-connected cathodic-protection (CP) monitoring devices on a buried pipeline and silently degrades the protection currents. T">
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 860px; margin: 2em auto;
+         padding: 0 1em; color: #1f2937; background: #fafafa; }
+  h1 { color: #1f2937; border-bottom: 3px solid #FF8818; padding-bottom: .3em; }
+  h2 { color: #EA7A10; margin-top: 1.5em; }
+  .meta { color: #6b7280; font-size: .9em; }
+  .chip { display: inline-block; padding: 2px 10px; margin: 2px;
+          background: #fff7ed; color: #EA7A10; border: 1px solid #fed7aa;
+          border-radius: 12px; font-size: .85em; }
+  .chip.unscannable { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .cta { background: #fff; border: 2px solid #FF8818; border-radius: 8px;
+         padding: 1.2em; margin: 2em 0; }
+  .cta a { background: #FF8818; color: white; padding: .6em 1.2em;
+           text-decoration: none; border-radius: 6px; font-weight: 600;
+           display: inline-block; margin-top: .6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { text-align: left; padding: .5em; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f3f4f6; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px;
+         font-family: 'SFMono-Regular', Consolas, monospace; font-size: .9em; }
+  pre { background: #f3f4f6; padding: 1em; border-radius: 6px; overflow-x: auto; }
+  .footer { color: #9ca3af; font-size: .85em; margin-top: 3em;
+            border-top: 1px solid #e5e7eb; padding-top: 1em; }
+</style>
+</head><body>
+<p class="meta"><a href="../index.html">&larr; SOCI Threat Atlas</a> · Sector: gas ·
+  Asset class: gas · TLP:CLEAR</p>
+<h1>GAS-006 · Cathodic-protection IoT tampering accelerating pipeline corrosion</h1>
+<p>An attacker compromises the cellular-connected cathodic-protection (CP) monitoring devices on a buried pipeline and silently degrades the protection currents. The tampering does not cause an immediate event; instead, it accelerates corrosion over months, dramatically shortening the asset&#x27;s remaining useful life and creating eventual leak or rupture risk. Pattern emerges from public IoT-device security research and Dragos and CISA reports on long-dwell ICS intrusions.
+</p>
+
+<h2>MITRE ATT&amp;CK mapping</h2>
+<p><strong>Tactics:</strong> <span class="chip">TA0001</span> <span class="chip">TA0040</span></p>
+<p><strong>Techniques:</strong> <span class="chip">T1190 Exploit Public-Facing Application</span> <span class="chip">T0836 Modify Parameter</span> <span class="chip">T0809 Block Reporting Message</span></p>
+
+<h2>Nodes</h2>
+<table><thead><tr><th>ID</th><th>Type</th><th>Description</th><th>Criticality</th><th>Scannable?</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code></td><td>external</td><td>Patient adversary, possibly state-aligned</td><td>low</td><td><span class="chip">scannable</span></td></tr><tr><td><code>cathodic_protection_iot</code></td><td>iot_asset</td><td>Cellular-connected CP monitoring and rectifier-control devices</td><td>high</td><td><span class="chip unscannable">unscannable: embedded_constrained_device</span></td></tr><tr><td><code>cp_monitoring_platform</code></td><td>it_asset</td><td>Cloud or on-premise CP monitoring platform</td><td>high</td><td><span class="chip">scannable</span></td></tr><tr><td><code>buried_pipeline_asset</code></td><td>ot_asset</td><td>Buried steel pipeline relying on CP for corrosion control</td><td>critical</td><td><span class="chip unscannable">unscannable: operational_disruption_risk</span></td></tr></tbody></table>
+
+<h2>Edges</h2>
+<table><thead><tr><th>From → To</th><th>Technique</th><th>Detection</th><th>Notes</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code> → <code>cp_monitoring_platform</code></td><td><code>T1190</code></td><td>medium</td><td></td></tr><tr><td><code>cp_monitoring_platform</code> → <code>cathodic_protection_iot</code></td><td><code>T0836</code></td><td>very_high</td><td></td></tr><tr><td><code>cathodic_protection_iot</code> → <code>buried_pipeline_asset</code></td><td><code>T0809</code></td><td>very_high</td><td>Damage accumulates over months — discovery only via direct inspection</td></tr></tbody></table>
+
+<h2>Priors (Beta-PERT)</h2>
+<p><strong>Annual frequency:</strong> min 0.0002 · mode 0.004 · max 0.02</p>
+<p class="meta">Very low base rate but consequence is catastrophic and slow-accumulating. Mode reflects the combination of poor IoT security maturity in CP devices and rising state-actor patience documented in CISA and ACSC reports.
+</p>
+<p><strong>Primary response (AUD):</strong>
+   $1,000,000 / $5,000,000 / $25,000,000</p>
+<p><strong>Secondary response (AUD):</strong>
+   $5,000,000 / $80,000,000 / $3,000,000,000</p>
+
+<div class="cta">
+  <strong>Want a calibrated probability for your operator?</strong>
+  <p class="meta">The atlas gives you a defensible prior. CyQuantiFi runs Monte Carlo against
+  your own asset inventory, refines the prior with calibrated expert input, and outputs ALE
+  in dollars — ready for a CIRMP or board paper.</p>
+  <a href="https://app.cyquantifi.com/import?scenario=GAS-006">Run GAS-006 in CyQuantiFi &rarr;</a>
+</div>
+
+<h2>Suggested controls</h2>
+<ul>
+<li><code>PR.DS-6</code> — Integrity checking on CP telemetry <span class='meta'>(NIST-CSF)</span></li><li><code>CIRMP-CYBER-3</code> — Inventory and assurance of IoT-class CP devices <span class='meta'>(SOCI-CIRMP)</span></li><li><code>ISO-15589</code> — Cathodic protection of buried or immersed metallic piping systems <span class='meta'>()</span></li>
+</ul>
+
+<h2>References</h2>
+<ul><li>AS/NZS 2832 series on cathodic protection</li>
+<li>Dragos OT Cybersecurity Year in Review 2024-2025 — long-dwell intrusions</li>
+<li>Australian Pipelines and Gas Association integrity-management guidance</li>
+<li>CISA advisories on IoT-class ICS devices</li>
+<li>Australian Government, Security of Critical Infrastructure Act 2018, gas asset class</li></ul>
+
+<p class="footer">
+  Version 1.0.0 · Last reviewed 2026-06-30 ·
+  Maintainers: @cyquantifi ·
+  MIT-licensed · Maintained by <a href="https://cyquantifi.com">CyQuantiFi Pty Ltd</a>
+</p>
+</body></html>

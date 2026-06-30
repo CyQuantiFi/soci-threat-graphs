@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>GAS-007 — Third-party engineering firm compromise as supply-chain entry | SOCI Threat Atlas</title>
+<meta name="description" content="An attacker compromises an external engineering consultancy that provides process-engineering services to a gas operator and has read-only access to the operato">
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 860px; margin: 2em auto;
+         padding: 0 1em; color: #1f2937; background: #fafafa; }
+  h1 { color: #1f2937; border-bottom: 3px solid #FF8818; padding-bottom: .3em; }
+  h2 { color: #EA7A10; margin-top: 1.5em; }
+  .meta { color: #6b7280; font-size: .9em; }
+  .chip { display: inline-block; padding: 2px 10px; margin: 2px;
+          background: #fff7ed; color: #EA7A10; border: 1px solid #fed7aa;
+          border-radius: 12px; font-size: .85em; }
+  .chip.unscannable { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .cta { background: #fff; border: 2px solid #FF8818; border-radius: 8px;
+         padding: 1.2em; margin: 2em 0; }
+  .cta a { background: #FF8818; color: white; padding: .6em 1.2em;
+           text-decoration: none; border-radius: 6px; font-weight: 600;
+           display: inline-block; margin-top: .6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { text-align: left; padding: .5em; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f3f4f6; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px;
+         font-family: 'SFMono-Regular', Consolas, monospace; font-size: .9em; }
+  pre { background: #f3f4f6; padding: 1em; border-radius: 6px; overflow-x: auto; }
+  .footer { color: #9ca3af; font-size: .85em; margin-top: 3em;
+            border-top: 1px solid #e5e7eb; padding-top: 1em; }
+</style>
+</head><body>
+<p class="meta"><a href="../index.html">&larr; SOCI Threat Atlas</a> · Sector: gas ·
+  Asset class: gas · TLP:CLEAR</p>
+<h1>GAS-007 · Third-party engineering firm compromise as supply-chain entry</h1>
+<p>An attacker compromises an external engineering consultancy that provides process-engineering services to a gas operator and has read-only access to the operator&#x27;s control-system documentation, historian data, and a jump host. The attacker uses this trusted-third-party access to pivot into the operator&#x27;s environment. Reflects the increasing prominence of third-party access as an initial vector in Mandiant M-Trends and the AESCSF supply-chain control area.
+</p>
+
+<h2>MITRE ATT&amp;CK mapping</h2>
+<p><strong>Tactics:</strong> <span class="chip">TA0001</span> <span class="chip">TA0008</span></p>
+<p><strong>Techniques:</strong> <span class="chip">T1199 Trusted Relationship</span> <span class="chip">T1078 Valid Accounts</span> <span class="chip">T1133 External Remote Services</span></p>
+
+<h2>Nodes</h2>
+<table><thead><tr><th>ID</th><th>Type</th><th>Description</th><th>Criticality</th><th>Scannable?</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code></td><td>external</td><td>Adversary targeting professional services firms with CI clients</td><td>low</td><td><span class="chip">scannable</span></td></tr><tr><td><code>engineering_firm_environment</code></td><td>vendor_asset</td><td>Engineering consultancy&#x27;s IT environment</td><td>high</td><td><span class="chip unscannable">unscannable: third_party_no_access</span></td></tr><tr><td><code>consultant_remote_access</code></td><td>it_asset</td><td>Operator-managed remote access account for the consultancy</td><td>high</td><td><span class="chip">scannable</span></td></tr><tr><td><code>operator_jump_host</code></td><td>it_asset</td><td>Operator jump host bridging consultant access to OT</td><td>high</td><td><span class="chip">scannable</span></td></tr><tr><td><code>operator_historian</code></td><td>it_asset</td><td>Operator&#x27;s data historian and engineering documentation</td><td>high</td><td><span class="chip">scannable</span></td></tr></tbody></table>
+
+<h2>Edges</h2>
+<table><thead><tr><th>From → To</th><th>Technique</th><th>Detection</th><th>Notes</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code> → <code>engineering_firm_environment</code></td><td><code>T1199</code></td><td>very_high</td><td>Operator has no visibility into consultancy environment</td></tr><tr><td><code>engineering_firm_environment</code> → <code>consultant_remote_access</code></td><td><code>T1078</code></td><td>high</td><td>Stolen consultant credentials used against operator access</td></tr><tr><td><code>consultant_remote_access</code> → <code>operator_jump_host</code></td><td><code>T1133</code></td><td>high</td><td></td></tr><tr><td><code>operator_jump_host</code> → <code>operator_historian</code></td><td><code>T1078</code></td><td>high</td><td></td></tr></tbody></table>
+
+<h2>Priors (Beta-PERT)</h2>
+<p><strong>Annual frequency:</strong> min 0.005 · mode 0.04 · max 0.15</p>
+<p class="meta">Third-party access compromises are increasingly documented in Mandiant M-Trends and ENISA reports. Mode reflects the typical multi-consultancy exposure of AU gas operators.
+</p>
+<p><strong>Primary response (AUD):</strong>
+   $500,000 / $2,500,000 / $12,000,000</p>
+<p><strong>Secondary response (AUD):</strong>
+   $1,500,000 / $25,000,000 / $300,000,000</p>
+
+<div class="cta">
+  <strong>Want a calibrated probability for your operator?</strong>
+  <p class="meta">The atlas gives you a defensible prior. CyQuantiFi runs Monte Carlo against
+  your own asset inventory, refines the prior with calibrated expert input, and outputs ALE
+  in dollars — ready for a CIRMP or board paper.</p>
+  <a href="https://app.cyquantifi.com/import?scenario=GAS-007">Run GAS-007 in CyQuantiFi &rarr;</a>
+</div>
+
+<h2>Suggested controls</h2>
+<ul>
+<li><code>CIRMP-CYBER-12</code> — Third-party access governance and continuous monitoring <span class='meta'>(SOCI-CIRMP)</span></li><li><code>AESCSF-SP-02</code> — Third-party connectivity controls <span class='meta'>(AESCSF)</span></li><li><code>PR.AC-3</code> — Remote access is managed <span class='meta'>(NIST-CSF)</span></li>
+</ul>
+
+<h2>References</h2>
+<ul><li>Mandiant M-Trends 2025 — third-party initial access</li>
+<li>ENISA Supply Chain Threat Landscape</li>
+<li>ASD/ACSC, Annual Cyber Threat Report 2024-25 — third-party risk</li>
+<li>AESCSF v1, AEMO — supply-chain control area</li>
+<li>Australian Government, Security of Critical Infrastructure Act 2018, gas asset class</li></ul>
+
+<p class="footer">
+  Version 1.0.0 · Last reviewed 2026-06-30 ·
+  Maintainers: @cyquantifi ·
+  MIT-licensed · Maintained by <a href="https://cyquantifi.com">CyQuantiFi Pty Ltd</a>
+</p>
+</body></html>

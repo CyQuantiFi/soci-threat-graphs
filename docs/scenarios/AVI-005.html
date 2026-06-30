@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>AVI-005 — Ground-handler phishing leading to airside system access | SOCI Threat Atlas</title>
+<meta name="description" content="Spear-phishing against a contracted ground-handling provider yields credentials that work on the airport&#x27;s airside operations systems. The attacker uses these t">
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 860px; margin: 2em auto;
+         padding: 0 1em; color: #1f2937; background: #fafafa; }
+  h1 { color: #1f2937; border-bottom: 3px solid #FF8818; padding-bottom: .3em; }
+  h2 { color: #EA7A10; margin-top: 1.5em; }
+  .meta { color: #6b7280; font-size: .9em; }
+  .chip { display: inline-block; padding: 2px 10px; margin: 2px;
+          background: #fff7ed; color: #EA7A10; border: 1px solid #fed7aa;
+          border-radius: 12px; font-size: .85em; }
+  .chip.unscannable { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .cta { background: #fff; border: 2px solid #FF8818; border-radius: 8px;
+         padding: 1.2em; margin: 2em 0; }
+  .cta a { background: #FF8818; color: white; padding: .6em 1.2em;
+           text-decoration: none; border-radius: 6px; font-weight: 600;
+           display: inline-block; margin-top: .6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { text-align: left; padding: .5em; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f3f4f6; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px;
+         font-family: 'SFMono-Regular', Consolas, monospace; font-size: .9em; }
+  pre { background: #f3f4f6; padding: 1em; border-radius: 6px; overflow-x: auto; }
+  .footer { color: #9ca3af; font-size: .85em; margin-top: 3em;
+            border-top: 1px solid #e5e7eb; padding-top: 1em; }
+</style>
+</head><body>
+<p class="meta"><a href="../index.html">&larr; SOCI Threat Atlas</a> · Sector: aviation ·
+  Asset class: aviation · TLP:CLEAR</p>
+<h1>AVI-005 · Ground-handler phishing leading to airside system access</h1>
+<p>Spear-phishing against a contracted ground-handling provider yields credentials that work on the airport&#x27;s airside operations systems. The attacker uses these to manipulate load-planning, slot allocation, or turnaround coordination, causing delays and unsafe-load conditions. Pattern reflects the airport-ecosystem multi-employer access model and the documented phishing rates against the AU aviation sector per ACSC.
+</p>
+
+<h2>MITRE ATT&amp;CK mapping</h2>
+<p><strong>Tactics:</strong> <span class="chip">TA0001</span> <span class="chip">TA0008</span></p>
+<p><strong>Techniques:</strong> <span class="chip">T1566.001 Spearphishing Attachment</span> <span class="chip">T1078 Valid Accounts</span> <span class="chip">T1133 External Remote Services</span></p>
+
+<h2>Nodes</h2>
+<table><thead><tr><th>ID</th><th>Type</th><th>Description</th><th>Criticality</th><th>Scannable?</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code></td><td>external</td><td>Adversary with sector reconnaissance</td><td>low</td><td><span class="chip">scannable</span></td></tr><tr><td><code>ground_handler_employee</code></td><td>person</td><td>Contracted ground-handling employee with airport-systems access</td><td>medium</td><td><span class="chip unscannable">unscannable: third_party_no_access</span></td></tr><tr><td><code>ground_handler_endpoint</code></td><td>it_asset</td><td>Ground-handler-managed endpoint</td><td>medium</td><td><span class="chip unscannable">unscannable: third_party_no_access</span></td></tr><tr><td><code>airport_airside_systems</code></td><td>it_asset</td><td>Airport airside operations and turnaround coordination systems</td><td>high</td><td><span class="chip">scannable</span></td></tr><tr><td><code>load_planning_database</code></td><td>data_store</td><td>Load and balance planning records</td><td>high</td><td><span class="chip">scannable</span></td></tr></tbody></table>
+
+<h2>Edges</h2>
+<table><thead><tr><th>From → To</th><th>Technique</th><th>Detection</th><th>Notes</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code> → <code>ground_handler_employee</code></td><td><code>T1566.001</code></td><td>medium</td><td></td></tr><tr><td><code>ground_handler_employee</code> → <code>ground_handler_endpoint</code></td><td><code>T1078</code></td><td>medium</td><td></td></tr><tr><td><code>ground_handler_endpoint</code> → <code>airport_airside_systems</code></td><td><code>T1133</code></td><td>high</td><td></td></tr><tr><td><code>airport_airside_systems</code> → <code>load_planning_database</code></td><td><code>T1078</code></td><td>high</td><td></td></tr></tbody></table>
+
+<h2>Priors (Beta-PERT)</h2>
+<p><strong>Annual frequency:</strong> min 0.05 · mode 0.2 · max 0.5</p>
+<p class="meta">Phishing is the highest-volume initial-access vector and ground-handler populations are large and turn over quickly. Mode reflects the near-certainty that at least one credential-theft event affects an AU airport&#x27;s ground-handler ecosystem per year.
+</p>
+<p><strong>Primary response (AUD):</strong>
+   $250,000 / $1,500,000 / $8,000,000</p>
+<p><strong>Secondary response (AUD):</strong>
+   $500,000 / $10,000,000 / $150,000,000</p>
+
+<div class="cta">
+  <strong>Want a calibrated probability for your operator?</strong>
+  <p class="meta">The atlas gives you a defensible prior. CyQuantiFi runs Monte Carlo against
+  your own asset inventory, refines the prior with calibrated expert input, and outputs ALE
+  in dollars — ready for a CIRMP or board paper.</p>
+  <a href="https://app.cyquantifi.com/import?scenario=AVI-005">Run AVI-005 in CyQuantiFi &rarr;</a>
+</div>
+
+<h2>Suggested controls</h2>
+<ul>
+<li><code>E8-MFA</code> — MFA on all third-party system access <span class='meta'>(Essential-Eight)</span></li><li><code>PR.AC-3</code> — Remote access is managed across ground-handler ecosystem <span class='meta'>(NIST-CSF)</span></li><li><code>CIRMP-PERS-1</code> — Personnel security checks extended to ground-handler ecosystem <span class='meta'>(SOCI-CIRMP)</span></li>
+</ul>
+
+<h2>References</h2>
+<ul><li>IATA Aviation Cyber Security Strategy 2.0</li>
+<li>ACSC, Annual Cyber Threat Report 2024-25 — phishing</li>
+<li>Department of Home Affairs Aviation Industry Security publications</li>
+<li>Mandiant M-Trends 2025 — third-party initial access</li>
+<li>Australian Government, Security of Critical Infrastructure Act 2018, aviation asset class</li></ul>
+
+<p class="footer">
+  Version 1.0.0 · Last reviewed 2026-06-30 ·
+  Maintainers: @cyquantifi ·
+  MIT-licensed · Maintained by <a href="https://cyquantifi.com">CyQuantiFi Pty Ltd</a>
+</p>
+</body></html>

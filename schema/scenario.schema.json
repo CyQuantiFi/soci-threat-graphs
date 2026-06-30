@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cyquantifi.github.io/soci-threat-graphs/schema/scenario.schema.json",
+  "title": "SOCI Threat Atlas Scenario",
+  "description": "A single threat scenario expressed as a graph fragment with priors and references.",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "version",
+    "sector",
+    "soci_asset_class",
+    "classification",
+    "summary",
+    "mitre_attack",
+    "nodes",
+    "edges",
+    "likelihood",
+    "loss_magnitude",
+    "references",
+    "maintainers",
+    "last_reviewed",
+    "license"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^(WAT|ELE|GAS|POR|AVI|HLT)-[0-9]{3}$",
+      "description": "Sector prefix + 3-digit identifier. Stable across versions."
+    },
+    "title": { "type": "string", "minLength": 8, "maxLength": 120 },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "SemVer. Bump major on breaking schema change, minor on new content, patch on corrections."
+    },
+    "sector": {
+      "type": "string",
+      "enum": ["water", "electricity", "gas", "ports", "aviation", "healthcare"]
+    },
+    "soci_asset_class": {
+      "type": "string",
+      "description": "Critical-infrastructure asset class as defined under the SOCI Act 2018 schedule."
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["TLP:CLEAR", "TLP:GREEN"],
+      "description": "Public-release scenarios only. TLP:AMBER and above are not accepted."
+    },
+    "summary": { "type": "string", "minLength": 80, "maxLength": 1200 },
+    "mitre_attack": {
+      "type": "object",
+      "required": ["tactics", "techniques"],
+      "properties": {
+        "tactics": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^TA[0-9]{4}$" },
+          "minItems": 1
+        },
+        "techniques": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$" },
+              "name": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "description", "scannable", "criticality"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "type": {
+            "type": "string",
+            "enum": ["it_asset", "ot_asset", "iot_asset", "vendor_asset", "external", "person", "data_store"]
+          },
+          "description": { "type": "string", "minLength": 8 },
+          "scannable": { "type": "boolean" },
+          "reason_unscannable": {
+            "type": "string",
+            "enum": [
+              "safety_critical_air_gapped",
+              "vendor_support_prohibits_agents",
+              "legacy_unsupported_os",
+              "embedded_constrained_device",
+              "third_party_no_access",
+              "classified_policy_prohibits",
+              "operational_disruption_risk"
+            ]
+          },
+          "criticality": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "consequence_type": {
+            "type": "string",
+            "enum": ["confidentiality", "integrity", "availability", "physical_safety", "financial", "regulatory", "reputational"]
+          }
+        },
+        "additionalProperties": false,
+        "if": { "properties": { "scannable": { "const": false } } },
+        "then": { "required": ["reason_unscannable"] }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "technique", "detection_difficulty"],
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "technique": { "type": "string", "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$" },
+          "detection_difficulty": {
+            "type": "string",
+            "enum": ["very_low", "low", "medium", "high", "very_high"]
+          },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "likelihood": {
+      "type": "object",
+      "required": ["annual_frequency", "rationale"],
+      "properties": {
+        "annual_frequency": { "$ref": "#/$defs/betaPert" },
+        "rationale": { "type": "string", "minLength": 30 }
+      },
+      "additionalProperties": false
+    },
+    "loss_magnitude": {
+      "type": "object",
+      "required": ["primary_response", "secondary_response"],
+      "properties": {
+        "primary_response": { "$ref": "#/$defs/betaPertMoney" },
+        "secondary_response": { "$ref": "#/$defs/betaPertMoney" },
+        "currency": { "type": "string", "enum": ["AUD", "USD"], "default": "AUD" }
+      },
+      "additionalProperties": false
+    },
+    "controls_suggested": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "framework": {
+            "type": "string",
+            "enum": ["NIST-CSF", "ISO-27001", "Essential-Eight", "AESCSF", "CPS-234", "ISM", "SOCI-CIRMP"]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "references": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 8 }
+    },
+    "maintainers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "contributors": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "last_reviewed": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "license": { "type": "string", "const": "MIT" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "betaPert": {
+      "type": "object",
+      "required": ["min", "mode", "max"],
+      "properties": {
+        "min": { "type": "number", "minimum": 0 },
+        "mode": { "type": "number", "minimum": 0 },
+        "max": { "type": "number", "minimum": 0 },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "betaPertMoney": {
+      "type": "object",
+      "required": ["min", "mode", "max"],
+      "properties": {
+        "min": { "type": "integer", "minimum": 0 },
+        "mode": { "type": "integer", "minimum": 0 },
+        "max": { "type": "integer", "minimum": 0 },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

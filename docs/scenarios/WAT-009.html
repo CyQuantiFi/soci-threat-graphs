@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>WAT-009 — Customer portal credential stuffing causing mass PII disclosure | SOCI Threat Atlas</title>
+<meta name="description" content="An attacker uses credentials from unrelated breaches to access the utility&#x27;s online customer portal at scale. Successful logins disclose customer names, address">
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 860px; margin: 2em auto;
+         padding: 0 1em; color: #1f2937; background: #fafafa; }
+  h1 { color: #1f2937; border-bottom: 3px solid #FF8818; padding-bottom: .3em; }
+  h2 { color: #EA7A10; margin-top: 1.5em; }
+  .meta { color: #6b7280; font-size: .9em; }
+  .chip { display: inline-block; padding: 2px 10px; margin: 2px;
+          background: #fff7ed; color: #EA7A10; border: 1px solid #fed7aa;
+          border-radius: 12px; font-size: .85em; }
+  .chip.unscannable { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .cta { background: #fff; border: 2px solid #FF8818; border-radius: 8px;
+         padding: 1.2em; margin: 2em 0; }
+  .cta a { background: #FF8818; color: white; padding: .6em 1.2em;
+           text-decoration: none; border-radius: 6px; font-weight: 600;
+           display: inline-block; margin-top: .6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { text-align: left; padding: .5em; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f3f4f6; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px;
+         font-family: 'SFMono-Regular', Consolas, monospace; font-size: .9em; }
+  pre { background: #f3f4f6; padding: 1em; border-radius: 6px; overflow-x: auto; }
+  .footer { color: #9ca3af; font-size: .85em; margin-top: 3em;
+            border-top: 1px solid #e5e7eb; padding-top: 1em; }
+</style>
+</head><body>
+<p class="meta"><a href="../index.html">&larr; SOCI Threat Atlas</a> · Sector: water ·
+  Asset class: water_and_sewerage · TLP:CLEAR</p>
+<h1>WAT-009 · Customer portal credential stuffing causing mass PII disclosure</h1>
+<p>An attacker uses credentials from unrelated breaches to access the utility&#x27;s online customer portal at scale. Successful logins disclose customer names, addresses, payment details, hardship-program participation, and consumption patterns that can be combined with other data sources for downstream fraud. No OT impact, but a notifiable data-breach event under the Privacy Act 1988 and reputational and legal exposure. Anchored to the documented use of credential-stuffing against AU online services 2022-2025 and the OAIC&#x27;s consistent ranking of credential stuffing in NDB statistics.
+</p>
+
+<h2>MITRE ATT&amp;CK mapping</h2>
+<p><strong>Tactics:</strong> <span class="chip">TA0001</span> <span class="chip">TA0009</span></p>
+<p><strong>Techniques:</strong> <span class="chip">T1110 Brute Force</span> <span class="chip">T1078 Valid Accounts</span> <span class="chip">T1530 Data from Cloud Storage</span></p>
+
+<h2>Nodes</h2>
+<table><thead><tr><th>ID</th><th>Type</th><th>Description</th><th>Criticality</th><th>Scannable?</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code></td><td>external</td><td>Adversary armed with credential lists from prior breaches</td><td>low</td><td><span class="chip">scannable</span></td></tr><tr><td><code>customer_portal_web</code></td><td>it_asset</td><td>Public customer self-service portal</td><td>high</td><td><span class="chip">scannable</span></td></tr><tr><td><code>customer_portal_api</code></td><td>it_asset</td><td>API backend of customer portal</td><td>high</td><td><span class="chip">scannable</span></td></tr><tr><td><code>customer_pii_database</code></td><td>data_store</td><td>Customer PII database (names, addresses, payment details, hardship data)</td><td>critical</td><td><span class="chip">scannable</span></td></tr></tbody></table>
+
+<h2>Edges</h2>
+<table><thead><tr><th>From → To</th><th>Technique</th><th>Detection</th><th>Notes</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code> → <code>customer_portal_web</code></td><td><code>T1110</code></td><td>low</td><td>High-volume credential stuffing, throttling and CAPTCHA often absent or weak</td></tr><tr><td><code>external_attacker</code> → <code>customer_portal_api</code></td><td><code>T1078</code></td><td>medium</td><td>Successful logins; account-takeover at scale</td></tr><tr><td><code>customer_portal_api</code> → <code>customer_pii_database</code></td><td><code>T1530</code></td><td>high</td><td>Enumeration via account features; access to per-account PII</td></tr></tbody></table>
+
+<h2>Priors (Beta-PERT)</h2>
+<p><strong>Annual frequency:</strong> min 0.1 · mode 0.3 · max 0.7</p>
+<p class="meta">Credential stuffing against AU online services is near-continuous per OAIC NDB and Have I Been Pwned data. Mode reflects the likelihood that any given AU water utility&#x27;s portal experiences a successful at-scale event in a 12-month window.
+</p>
+<p><strong>Primary response (AUD):</strong>
+   $100,000 / $600,000 / $4,000,000</p>
+<p><strong>Secondary response (AUD):</strong>
+   $500,000 / $5,000,000 / $80,000,000</p>
+
+<div class="cta">
+  <strong>Want a calibrated probability for your operator?</strong>
+  <p class="meta">The atlas gives you a defensible prior. CyQuantiFi runs Monte Carlo against
+  your own asset inventory, refines the prior with calibrated expert input, and outputs ALE
+  in dollars — ready for a CIRMP or board paper.</p>
+  <a href="https://app.cyquantifi.com/import?scenario=WAT-009">Run WAT-009 in CyQuantiFi &rarr;</a>
+</div>
+
+<h2>Suggested controls</h2>
+<ul>
+<li><code>E8-MFA</code> — MFA on customer-portal logins <span class='meta'>(Essential-Eight)</span></li><li><code>PR.AC-7</code> — Users, devices, and assets are authenticated commensurate with risk <span class='meta'>(NIST-CSF)</span></li><li><code>CIRMP-CYBER-10</code> — Customer-portal abuse monitoring and rate limiting <span class='meta'>(SOCI-CIRMP)</span></li>
+</ul>
+
+<h2>References</h2>
+<ul><li>OAIC Notifiable Data Breaches reports 2022 H1 through 2025 H2 — credential stuffing</li>
+<li>Have I Been Pwned aggregate data on AU breach exposure</li>
+<li>OWASP Credential Stuffing Prevention Cheat Sheet</li>
+<li>Privacy Act 1988 (Cth) and 2024-2025 amendments on data-breach penalties</li>
+<li>Australian Government, Security of Critical Infrastructure Act 2018, water and sewerage asset class</li></ul>
+
+<p class="footer">
+  Version 1.0.0 · Last reviewed 2026-06-30 ·
+  Maintainers: @cyquantifi ·
+  MIT-licensed · Maintained by <a href="https://cyquantifi.com">CyQuantiFi Pty Ltd</a>
+</p>
+</body></html>

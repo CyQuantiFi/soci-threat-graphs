@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>HLT-001 — Hospital ransomware with lateral movement to medical-device subnets | SOCI Threat Atlas</title>
+<meta name="description" content="An attacker delivers ransomware into a hospital&#x27;s enterprise IT environment and moves laterally onto biomedical-engineering and medical-device subnets, where un">
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 860px; margin: 2em auto;
+         padding: 0 1em; color: #1f2937; background: #fafafa; }
+  h1 { color: #1f2937; border-bottom: 3px solid #FF8818; padding-bottom: .3em; }
+  h2 { color: #EA7A10; margin-top: 1.5em; }
+  .meta { color: #6b7280; font-size: .9em; }
+  .chip { display: inline-block; padding: 2px 10px; margin: 2px;
+          background: #fff7ed; color: #EA7A10; border: 1px solid #fed7aa;
+          border-radius: 12px; font-size: .85em; }
+  .chip.unscannable { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .cta { background: #fff; border: 2px solid #FF8818; border-radius: 8px;
+         padding: 1.2em; margin: 2em 0; }
+  .cta a { background: #FF8818; color: white; padding: .6em 1.2em;
+           text-decoration: none; border-radius: 6px; font-weight: 600;
+           display: inline-block; margin-top: .6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { text-align: left; padding: .5em; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f3f4f6; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px;
+         font-family: 'SFMono-Regular', Consolas, monospace; font-size: .9em; }
+  pre { background: #f3f4f6; padding: 1em; border-radius: 6px; overflow-x: auto; }
+  .footer { color: #9ca3af; font-size: .85em; margin-top: 3em;
+            border-top: 1px solid #e5e7eb; padding-top: 1em; }
+</style>
+</head><body>
+<p class="meta"><a href="../index.html">&larr; SOCI Threat Atlas</a> · Sector: healthcare ·
+  Asset class: health_care_and_medical · TLP:CLEAR</p>
+<h1>HLT-001 · Hospital ransomware with lateral movement to medical-device subnets</h1>
+<p>An attacker delivers ransomware into a hospital&#x27;s enterprise IT environment and moves laterally onto biomedical-engineering and medical-device subnets, where unsupported legacy operating systems and IoT-class imaging devices cannot be patched or run modern agents. Loss of imaging, electronic medical records, and pathology systems forces re-routing of patients and cancellation of elective procedures. Pattern documented in numerous AU and international healthcare incidents 2020-2025.
+</p>
+
+<h2>MITRE ATT&amp;CK mapping</h2>
+<p><strong>Tactics:</strong> <span class="chip">TA0001</span> <span class="chip">TA0008</span> <span class="chip">TA0040</span></p>
+<p><strong>Techniques:</strong> <span class="chip">T1566 Phishing</span> <span class="chip">T1021 Remote Services</span> <span class="chip">T1486 Data Encrypted for Impact</span></p>
+
+<h2>Nodes</h2>
+<table><thead><tr><th>ID</th><th>Type</th><th>Description</th><th>Criticality</th><th>Scannable?</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code></td><td>external</td><td>Ransomware-as-a-service operator</td><td>low</td><td><span class="chip">scannable</span></td></tr><tr><td><code>clinician_workstation</code></td><td>it_asset</td><td>Clinician endpoint with email and EMR access</td><td>medium</td><td><span class="chip">scannable</span></td></tr><tr><td><code>emr_system</code></td><td>it_asset</td><td>Electronic Medical Records system</td><td>critical</td><td><span class="chip">scannable</span></td></tr><tr><td><code>imaging_modality_ct</code></td><td>iot_asset</td><td>CT scanner with embedded Windows OS that vendor will not allow patching outside scheduled service windows</td><td>high</td><td><span class="chip unscannable">unscannable: vendor_support_prohibits_agents</span></td></tr><tr><td><code>pathology_lis</code></td><td>it_asset</td><td>Laboratory Information System for pathology</td><td>critical</td><td><span class="chip">scannable</span></td></tr><tr><td><code>legacy_radiology_pacs</code></td><td>it_asset</td><td>Picture Archiving and Communication System running unsupported OS</td><td>high</td><td><span class="chip unscannable">unscannable: legacy_unsupported_os</span></td></tr></tbody></table>
+
+<h2>Edges</h2>
+<table><thead><tr><th>From → To</th><th>Technique</th><th>Detection</th><th>Notes</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code> → <code>clinician_workstation</code></td><td><code>T1566</code></td><td>medium</td><td>Phishing with malicious document; common entry vector in disclosed healthcare incidents</td></tr><tr><td><code>clinician_workstation</code> → <code>emr_system</code></td><td><code>T1021</code></td><td>high</td><td>Stolen clinician credentials used over RDP or SMB</td></tr><tr><td><code>emr_system</code> → <code>imaging_modality_ct</code></td><td><code>T1486</code></td><td>very_high</td><td>Flat-network or weakly-segmented biomedical VLAN allows ransomware to reach the modality</td></tr><tr><td><code>emr_system</code> → <code>pathology_lis</code></td><td><code>T1486</code></td><td>low</td><td></td></tr><tr><td><code>emr_system</code> → <code>legacy_radiology_pacs</code></td><td><code>T1486</code></td><td>low</td><td></td></tr></tbody></table>
+
+<h2>Priors (Beta-PERT)</h2>
+<p><strong>Annual frequency:</strong> min 0.03 · mode 0.12 · max 0.4</p>
+<p class="meta">Healthcare is the most frequently targeted critical-infrastructure sector in AU per OAIC NDB statistics 2022-2025. Mode reflects the high observed base rate; max reflects the worst-case for a tertiary hospital network with weak segmentation between corporate and clinical environments.
+</p>
+<p><strong>Primary response (AUD):</strong>
+   $500,000 / $4,000,000 / $25,000,000</p>
+<p><strong>Secondary response (AUD):</strong>
+   $2,000,000 / $30,000,000 / $300,000,000</p>
+
+<div class="cta">
+  <strong>Want a calibrated probability for your operator?</strong>
+  <p class="meta">The atlas gives you a defensible prior. CyQuantiFi runs Monte Carlo against
+  your own asset inventory, refines the prior with calibrated expert input, and outputs ALE
+  in dollars — ready for a CIRMP or board paper.</p>
+  <a href="https://app.cyquantifi.com/import?scenario=HLT-001">Run HLT-001 in CyQuantiFi &rarr;</a>
+</div>
+
+<h2>Suggested controls</h2>
+<ul>
+<li><code>PR.AC-5</code> — Network segmentation between corporate and biomedical networks <span class='meta'>(NIST-CSF)</span></li><li><code>E8-BACKUPS</code> — Daily backups with offline copy and tested recovery <span class='meta'>(Essential-Eight)</span></li><li><code>CIRMP-CYBER-8</code> — Compensating controls for unscannable medical devices <span class='meta'>(SOCI-CIRMP)</span></li><li><code>ISO-27001-A.8.13</code> — Information backup <span class='meta'>(ISO-27001)</span></li>
+</ul>
+
+<h2>References</h2>
+<ul><li>OAIC Notifiable Data Breaches reports 2022 H1 through 2025 H2</li>
+<li>ASD/ACSC, Annual Cyber Threat Report 2024-25 — health sector</li>
+<li>Health Sector Cybersecurity Coordination Center (HC3) — international parallels</li>
+<li>Australian Government, Security of Critical Infrastructure Act 2018, health care and medical asset class</li></ul>
+
+<p class="footer">
+  Version 1.0.0 · Last reviewed 2026-06-30 ·
+  Maintainers: @cyquantifi ·
+  MIT-licensed · Maintained by <a href="https://cyquantifi.com">CyQuantiFi Pty Ltd</a>
+</p>
+</body></html>

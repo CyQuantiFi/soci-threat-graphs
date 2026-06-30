@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "SOCI Threat Atlas: open-source threat graphs for Australian critical infrastructure"
+message: "If you use the SOCI Threat Atlas in a CIRMP, board paper, research output, or commercial engagement, please cite it."
+type: dataset
+authors:
+  - name: "CyQuantiFi Pty Ltd"
+    website: "https://cyquantifi.com"
+    address: "1504/4 Grazier Lane, Belconnen ACT 2617, Australia"
+repository-code: "https://github.com/cyquantifi/soci-threat-graphs"
+url: "https://cyquantifi.github.io/soci-threat-graphs/"
+license: MIT
+keywords:
+  - cyber risk quantification
+  - SOCI
+  - CIRMP
+  - critical infrastructure
+  - threat modelling
+  - FAIR
+  - Australia
+abstract: >
+  The SOCI Threat Atlas is an open-source library of machine-readable threat
+  graphs covering credible cyber-attack scenarios against Australian critical
+  infrastructure as defined by the Security of Critical Infrastructure Act 2018
+  (SOCI). Scenarios span water, electricity, gas, ports, aviation, and
+  healthcare, and are formatted for direct ingestion into quantitative risk
+  models. Maintained by CyQuantiFi Pty Ltd.

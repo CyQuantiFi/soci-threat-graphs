@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>AVI-003 — Air-cargo terminal management ransomware disrupting freight handling | SOCI Threat Atlas</title>
+<meta name="description" content="Ransomware encrypts the cargo-management system at an airport freight terminal, halting documentation, customs interface, and warehouse movements. Perishable an">
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 860px; margin: 2em auto;
+         padding: 0 1em; color: #1f2937; background: #fafafa; }
+  h1 { color: #1f2937; border-bottom: 3px solid #FF8818; padding-bottom: .3em; }
+  h2 { color: #EA7A10; margin-top: 1.5em; }
+  .meta { color: #6b7280; font-size: .9em; }
+  .chip { display: inline-block; padding: 2px 10px; margin: 2px;
+          background: #fff7ed; color: #EA7A10; border: 1px solid #fed7aa;
+          border-radius: 12px; font-size: .85em; }
+  .chip.unscannable { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .cta { background: #fff; border: 2px solid #FF8818; border-radius: 8px;
+         padding: 1.2em; margin: 2em 0; }
+  .cta a { background: #FF8818; color: white; padding: .6em 1.2em;
+           text-decoration: none; border-radius: 6px; font-weight: 600;
+           display: inline-block; margin-top: .6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { text-align: left; padding: .5em; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f3f4f6; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px;
+         font-family: 'SFMono-Regular', Consolas, monospace; font-size: .9em; }
+  pre { background: #f3f4f6; padding: 1em; border-radius: 6px; overflow-x: auto; }
+  .footer { color: #9ca3af; font-size: .85em; margin-top: 3em;
+            border-top: 1px solid #e5e7eb; padding-top: 1em; }
+</style>
+</head><body>
+<p class="meta"><a href="../index.html">&larr; SOCI Threat Atlas</a> · Sector: aviation ·
+  Asset class: aviation · TLP:CLEAR</p>
+<h1>AVI-003 · Air-cargo terminal management ransomware disrupting freight handling</h1>
+<p>Ransomware encrypts the cargo-management system at an airport freight terminal, halting documentation, customs interface, and warehouse movements. Perishable and time-sensitive cargo (medical, e-commerce, pharmaceutical) is most affected. Pattern follows DP World Australia 2023 for the container-port equivalent and the broader pattern of cargo- terminal ransomware events globally.
+</p>
+
+<h2>MITRE ATT&amp;CK mapping</h2>
+<p><strong>Tactics:</strong> <span class="chip">TA0001</span> <span class="chip">TA0008</span> <span class="chip">TA0040</span></p>
+<p><strong>Techniques:</strong> <span class="chip">T1566 Phishing</span> <span class="chip">T1486 Data Encrypted for Impact</span> <span class="chip">T1490 Inhibit System Recovery</span></p>
+
+<h2>Nodes</h2>
+<table><thead><tr><th>ID</th><th>Type</th><th>Description</th><th>Criticality</th><th>Scannable?</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code></td><td>external</td><td>Ransomware affiliate</td><td>low</td><td><span class="chip">scannable</span></td></tr><tr><td><code>warehouse_user_endpoint</code></td><td>it_asset</td><td>Warehouse workstation</td><td>medium</td><td><span class="chip">scannable</span></td></tr><tr><td><code>cargo_management_system</code></td><td>it_asset</td><td>Air-cargo terminal management system</td><td>critical</td><td><span class="chip">scannable</span></td></tr><tr><td><code>customs_interface</code></td><td>it_asset</td><td>Customs interface to ABF Integrated Cargo System</td><td>high</td><td><span class="chip">scannable</span></td></tr><tr><td><code>warehouse_handling_operation</code></td><td>ot_asset</td><td>Physical cargo movement, gated on system documentation</td><td>critical</td><td><span class="chip unscannable">unscannable: operational_disruption_risk</span></td></tr></tbody></table>
+
+<h2>Edges</h2>
+<table><thead><tr><th>From → To</th><th>Technique</th><th>Detection</th><th>Notes</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code> → <code>warehouse_user_endpoint</code></td><td><code>T1566</code></td><td>medium</td><td></td></tr><tr><td><code>warehouse_user_endpoint</code> → <code>cargo_management_system</code></td><td><code>T1486</code></td><td>low</td><td></td></tr><tr><td><code>cargo_management_system</code> → <code>customs_interface</code></td><td><code>T1490</code></td><td>low</td><td></td></tr><tr><td><code>cargo_management_system</code> → <code>warehouse_handling_operation</code></td><td><code>T1490</code></td><td>very_low</td><td></td></tr></tbody></table>
+
+<h2>Priors (Beta-PERT)</h2>
+<p><strong>Annual frequency:</strong> min 0.02 · mode 0.1 · max 0.3</p>
+<p class="meta">Air-cargo terminal ransomware is well-documented globally. Mode reflects AU cargo-terminal threat environment per ACSC and IATA publications.
+</p>
+<p><strong>Primary response (AUD):</strong>
+   $500,000 / $3,000,000 / $15,000,000</p>
+<p><strong>Secondary response (AUD):</strong>
+   $1,500,000 / $25,000,000 / $250,000,000</p>
+
+<div class="cta">
+  <strong>Want a calibrated probability for your operator?</strong>
+  <p class="meta">The atlas gives you a defensible prior. CyQuantiFi runs Monte Carlo against
+  your own asset inventory, refines the prior with calibrated expert input, and outputs ALE
+  in dollars — ready for a CIRMP or board paper.</p>
+  <a href="https://app.cyquantifi.com/import?scenario=AVI-003">Run AVI-003 in CyQuantiFi &rarr;</a>
+</div>
+
+<h2>Suggested controls</h2>
+<ul>
+<li><code>E8-BACKUPS</code> — Daily backups with offline copy and tested recovery <span class='meta'>(Essential-Eight)</span></li><li><code>E8-MFA</code> — MFA on cargo-system accounts <span class='meta'>(Essential-Eight)</span></li><li><code>CIRMP-CYBER-9</code> — Tested business continuity plan including paper-based fallback <span class='meta'>(SOCI-CIRMP)</span></li>
+</ul>
+
+<h2>References</h2>
+<ul><li>IATA Cargo Cyber Security guidance</li>
+<li>DP World Australia incident, November 2023</li>
+<li>ACSC, Annual Cyber Threat Report 2024-25</li>
+<li>Department of Home Affairs Maritime and Aviation Industry Security publications</li>
+<li>Australian Government, Security of Critical Infrastructure Act 2018, aviation asset class</li></ul>
+
+<p class="footer">
+  Version 1.0.0 · Last reviewed 2026-06-30 ·
+  Maintainers: @cyquantifi ·
+  MIT-licensed · Maintained by <a href="https://cyquantifi.com">CyQuantiFi Pty Ltd</a>
+</p>
+</body></html>

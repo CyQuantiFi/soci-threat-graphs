@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>SOCI Threat Atlas — Open-source threat graphs for AU critical infrastructure</title>
+<meta name="description" content="Open-source threat graphs for Australian critical infrastructure. MIT-licensed.">
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 860px; margin: 2em auto;
+         padding: 0 1em; color: #1f2937; background: #fafafa; }
+  h1 { color: #1f2937; border-bottom: 3px solid #FF8818; padding-bottom: .3em; }
+  h2 { color: #EA7A10; margin-top: 1.5em; }
+  .meta { color: #6b7280; font-size: .9em; }
+  .chip { display: inline-block; padding: 2px 10px; margin: 2px;
+          background: #fff7ed; color: #EA7A10; border: 1px solid #fed7aa;
+          border-radius: 12px; font-size: .85em; }
+  .chip.unscannable { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .cta { background: #fff; border: 2px solid #FF8818; border-radius: 8px;
+         padding: 1.2em; margin: 2em 0; }
+  .cta a { background: #FF8818; color: white; padding: .6em 1.2em;
+           text-decoration: none; border-radius: 6px; font-weight: 600;
+           display: inline-block; margin-top: .6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { text-align: left; padding: .5em; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f3f4f6; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px;
+         font-family: 'SFMono-Regular', Consolas, monospace; font-size: .9em; }
+  pre { background: #f3f4f6; padding: 1em; border-radius: 6px; overflow-x: auto; }
+  .footer { color: #9ca3af; font-size: .85em; margin-top: 3em;
+            border-top: 1px solid #e5e7eb; padding-top: 1em; }
+</style>
+</head><body>
+<h1>SOCI Threat Atlas</h1>
+<p>Open-source threat graphs for Australian critical infrastructure.
+   MIT-licensed. Maintained by <a href="https://cyquantifi.com">CyQuantiFi</a>.</p>
+<p class="meta">54 scenarios across 6 sectors.
+   Format: machine-readable YAML with MITRE ATT&amp;CK mapping, Beta-PERT priors, and public references.
+   Designed to be imported directly into a quantitative risk model.</p>
+
+<div class="cta">
+  <strong>Using the atlas in a CIRMP, board paper, or SOCI engagement?</strong>
+  <p class="meta">The atlas provides defensible priors grounded in public evidence.
+  CyQuantiFi runs the math layer — Monte Carlo simulation, calibrated expert input,
+  ALE in dollars — and imports atlas scenarios directly.</p>
+  <a href="https://cyquantifi.com">Learn how CyQuantiFi uses the atlas &rarr;</a>
+</div>
+
+<h2>Aviation</h2><ul><li><a href="scenarios/AVI-001.html"><code>AVI-001</code> — Baggage handling and ground systems disruption via shared IT services</a></li><li><a href="scenarios/AVI-002.html"><code>AVI-002</code> — Airline Departure Control System ransomware halting passenger processing</a></li><li><a href="scenarios/AVI-003.html"><code>AVI-003</code> — Air-cargo terminal management ransomware disrupting freight handling</a></li><li><a href="scenarios/AVI-004.html"><code>AVI-004</code> — Passenger biometric and ePassport kiosk compromise leaking PII at scale</a></li><li><a href="scenarios/AVI-005.html"><code>AVI-005</code> — Ground-handler phishing leading to airside system access</a></li><li><a href="scenarios/AVI-006.html"><code>AVI-006</code> — Aviation fuel hydrant system tampering disrupting refuelling</a></li><li><a href="scenarios/AVI-007.html"><code>AVI-007</code> — Airside Wi-Fi rogue access point harvesting staff and crew credentials</a></li><li><a href="scenarios/AVI-008.html"><code>AVI-008</code> — Insider airport IT administrator sabotage of common-use systems</a></li><li><a href="scenarios/AVI-009.html"><code>AVI-009</code> — Air-cargo screening equipment tampering enabling prohibited-item carriage</a></li></ul><h2>Electricity</h2><ul><li><a href="scenarios/ELE-001.html"><code>ELE-001</code> — Substation RTU manipulation via vendor remote-access channel</a></li><li><a href="scenarios/ELE-002.html"><code>ELE-002</code> — Distribution Management System ransomware halting outage restoration</a></li><li><a href="scenarios/ELE-003.html"><code>ELE-003</code> — AMI head-end system exploitation for mass metering manipulation</a></li><li><a href="scenarios/ELE-004.html"><code>ELE-004</code> — Industroyer-pattern protocol abuse against transmission substations</a></li><li><a href="scenarios/ELE-005.html"><code>ELE-005</code> — Cloud-hosted renewable-inverter management platform compromised at scale</a></li><li><a href="scenarios/ELE-006.html"><code>ELE-006</code> — Generator dispatch and market-bidding interface compromise</a></li><li><a href="scenarios/ELE-007.html"><code>ELE-007</code> — Spear-phishing of control-room operator leading to OT-network access</a></li><li><a href="scenarios/ELE-008.html"><code>ELE-008</code> — Edge firewall CVE mass-exploitation establishing persistent access</a></li><li><a href="scenarios/ELE-009.html"><code>ELE-009</code> — Insider exfiltration of grid topology and protection-settings data</a></li></ul><h2>Gas</h2><ul><li><a href="scenarios/GAS-001.html"><code>GAS-001</code> — Enterprise ransomware forcing precautionary pipeline shutdown</a></li><li><a href="scenarios/GAS-002.html"><code>GAS-002</code> — Compressor station PLC manipulation via vendor remote-support tunnel</a></li><li><a href="scenarios/GAS-003.html"><code>GAS-003</code> — Custody-transfer metering tampering causing commercial disputes</a></li><li><a href="scenarios/GAS-004.html"><code>GAS-004</code> — Gas processing plant DCS malware affecting safety-instrumented systems</a></li><li><a href="scenarios/GAS-005.html"><code>GAS-005</code> — SCADA protocol abuse (Modbus, DNP3) against gas distribution</a></li><li><a href="scenarios/GAS-006.html"><code>GAS-006</code> — Cathodic-protection IoT tampering accelerating pipeline corrosion</a></li><li><a href="scenarios/GAS-007.html"><code>GAS-007</code> — Third-party engineering firm compromise as supply-chain entry</a></li><li><a href="scenarios/GAS-008.html"><code>GAS-008</code> — Wiper malware destroying control-room historian and engineering data</a></li><li><a href="scenarios/GAS-009.html"><code>GAS-009</code> — Asset-management data poisoning misdirecting integrity-management programme</a></li></ul><h2>Healthcare</h2><ul><li><a href="scenarios/HLT-001.html"><code>HLT-001</code> — Hospital ransomware with lateral movement to medical-device subnets</a></li><li><a href="scenarios/HLT-002.html"><code>HLT-002</code> — PACS imaging-system exfiltration and double-extortion ransomware</a></li><li><a href="scenarios/HLT-003.html"><code>HLT-003</code> — Business email compromise driving fraudulent vendor payment</a></li><li><a href="scenarios/HLT-004.html"><code>HLT-004</code> — Infusion-pump IoMT compromise enabling unsafe medication delivery</a></li><li><a href="scenarios/HLT-005.html"><code>HLT-005</code> — Telehealth platform mass account takeover exposing consultations</a></li><li><a href="scenarios/HLT-006.html"><code>HLT-006</code> — Pathology Laboratory Information System ransomware halting diagnostics</a></li><li><a href="scenarios/HLT-007.html"><code>HLT-007</code> — Insider clinician inappropriate access to VIP and family medical records</a></li><li><a href="scenarios/HLT-008.html"><code>HLT-008</code> — ICU patient-monitor network flood disrupting clinical observation</a></li><li><a href="scenarios/HLT-009.html"><code>HLT-009</code> — Pharmacy automated dispensing system tampering creating medication errors</a></li></ul><h2>Ports</h2><ul><li><a href="scenarios/POR-001.html"><code>POR-001</code> — Terminal operating system ransomware halting container movement</a></li><li><a href="scenarios/POR-002.html"><code>POR-002</code> — Ship-to-shore crane control tampering disrupting vessel discharge</a></li><li><a href="scenarios/POR-003.html"><code>POR-003</code> — Customs interface data manipulation enabling cargo misrouting</a></li><li><a href="scenarios/POR-004.html"><code>POR-004</code> — Refrigerated cargo monitoring tampering causing perishable losses</a></li><li><a href="scenarios/POR-005.html"><code>POR-005</code> — Bunker-fuel logistics system compromise enabling fuel-quantity fraud</a></li><li><a href="scenarios/POR-006.html"><code>POR-006</code> — Vessel Traffic Services disruption causing navigation safety incident</a></li><li><a href="scenarios/POR-007.html"><code>POR-007</code> — Insider stevedore using terminal systems for cargo misappropriation</a></li><li><a href="scenarios/POR-008.html"><code>POR-008</code> — DDoS and protocol abuse against terminal gate system halting truck flow</a></li><li><a href="scenarios/POR-009.html"><code>POR-009</code> — Port Community System compromise affecting multiple stakeholders</a></li></ul><h2>Water</h2><ul><li><a href="scenarios/WAT-001.html"><code>WAT-001</code> — SCADA compromise via engineering workstation pivot</a></li><li><a href="scenarios/WAT-002.html"><code>WAT-002</code> — Enterprise ransomware halting billing, customer service, and asset management</a></li><li><a href="scenarios/WAT-003.html"><code>WAT-003</code> — Internet-exposed HMI directly accessed by opportunistic adversary</a></li><li><a href="scenarios/WAT-004.html"><code>WAT-004</code> — Insider operator abusing legitimate SCADA credentials to manipulate treatment</a></li><li><a href="scenarios/WAT-005.html"><code>WAT-005</code> — Supply-chain compromise of laboratory information system vendor</a></li><li><a href="scenarios/WAT-006.html"><code>WAT-006</code> — VPN edge-appliance CVE exploited to pivot from corporate to control network</a></li><li><a href="scenarios/WAT-007.html"><code>WAT-007</code> — Dam spillway control compromised via OEM vendor remote-support tunnel</a></li><li><a href="scenarios/WAT-008.html"><code>WAT-008</code> — Backup-system destruction denying recovery from concurrent ransomware</a></li><li><a href="scenarios/WAT-009.html"><code>WAT-009</code> — Customer portal credential stuffing causing mass PII disclosure</a></li></ul>
+
+<p class="footer">
+  MIT-licensed · <a href="https://github.com/cyquantifi/soci-threat-graphs">GitHub</a> ·
+  <a href="https://github.com/cyquantifi/soci-threat-graphs/blob/main/CONTRIBUTING.md">Contribute a scenario</a>
+</p>
+</body></html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>HLT-009 — Pharmacy automated dispensing system tampering creating medication errors | SOCI Threat Atlas</title>
+<meta name="description" content="An attacker compromises the hospital pharmacy automated dispensing system and alters drug-to-bin mappings or dose limits, causing medication errors at scale unt">
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 860px; margin: 2em auto;
+         padding: 0 1em; color: #1f2937; background: #fafafa; }
+  h1 { color: #1f2937; border-bottom: 3px solid #FF8818; padding-bottom: .3em; }
+  h2 { color: #EA7A10; margin-top: 1.5em; }
+  .meta { color: #6b7280; font-size: .9em; }
+  .chip { display: inline-block; padding: 2px 10px; margin: 2px;
+          background: #fff7ed; color: #EA7A10; border: 1px solid #fed7aa;
+          border-radius: 12px; font-size: .85em; }
+  .chip.unscannable { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .cta { background: #fff; border: 2px solid #FF8818; border-radius: 8px;
+         padding: 1.2em; margin: 2em 0; }
+  .cta a { background: #FF8818; color: white; padding: .6em 1.2em;
+           text-decoration: none; border-radius: 6px; font-weight: 600;
+           display: inline-block; margin-top: .6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { text-align: left; padding: .5em; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f3f4f6; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px;
+         font-family: 'SFMono-Regular', Consolas, monospace; font-size: .9em; }
+  pre { background: #f3f4f6; padding: 1em; border-radius: 6px; overflow-x: auto; }
+  .footer { color: #9ca3af; font-size: .85em; margin-top: 3em;
+            border-top: 1px solid #e5e7eb; padding-top: 1em; }
+</style>
+</head><body>
+<p class="meta"><a href="../index.html">&larr; SOCI Threat Atlas</a> · Sector: healthcare ·
+  Asset class: health_care_and_medical · TLP:CLEAR</p>
+<h1>HLT-009 · Pharmacy automated dispensing system tampering creating medication errors</h1>
+<p>An attacker compromises the hospital pharmacy automated dispensing system and alters drug-to-bin mappings or dose limits, causing medication errors at scale until clinical staff notice via incident reports. Distinct from HLT-004 (which targets pumps directly) because this scenario sits at the pharmacy-to-ward boundary. Pattern reflects HC3 advisories on automated dispensing cabinets and TGA cybersecurity concerns about pharmacy automation.
+</p>
+
+<h2>MITRE ATT&amp;CK mapping</h2>
+<p><strong>Tactics:</strong> <span class="chip">TA0001</span> <span class="chip">TA0040</span></p>
+<p><strong>Techniques:</strong> <span class="chip">T1190 Exploit Public-Facing Application</span> <span class="chip">T0836 Modify Parameter</span> <span class="chip">T1565 Data Manipulation</span></p>
+
+<h2>Nodes</h2>
+<table><thead><tr><th>ID</th><th>Type</th><th>Description</th><th>Criticality</th><th>Scannable?</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code></td><td>external</td><td>Adversary targeting healthcare automation</td><td>low</td><td><span class="chip">scannable</span></td></tr><tr><td><code>pharmacy_management_server</code></td><td>it_asset</td><td>Pharmacy automated dispensing management server</td><td>critical</td><td><span class="chip">scannable</span></td></tr><tr><td><code>dispensing_cabinet_population</code></td><td>iot_asset</td><td>Automated dispensing cabinets across wards</td><td>critical</td><td><span class="chip unscannable">unscannable: embedded_constrained_device</span></td></tr><tr><td><code>drug_to_bin_mapping</code></td><td>data_store</td><td>Drug-to-bin and dose-limit configuration data</td><td>critical</td><td><span class="chip">scannable</span></td></tr></tbody></table>
+
+<h2>Edges</h2>
+<table><thead><tr><th>From → To</th><th>Technique</th><th>Detection</th><th>Notes</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code> → <code>pharmacy_management_server</code></td><td><code>T1190</code></td><td>medium</td><td></td></tr><tr><td><code>pharmacy_management_server</code> → <code>drug_to_bin_mapping</code></td><td><code>T1565</code></td><td>very_high</td><td></td></tr><tr><td><code>drug_to_bin_mapping</code> → <code>dispensing_cabinet_population</code></td><td><code>T0836</code></td><td>very_high</td><td></td></tr></tbody></table>
+
+<h2>Priors (Beta-PERT)</h2>
+<p><strong>Annual frequency:</strong> min 0.0005 · mode 0.008 · max 0.04</p>
+<p class="meta">Very low base rate per disclosed incidents but consequence severity is high. Mode reflects HC3 and TGA elevated concern about pharmacy automation cyber risk since 2023.
+</p>
+<p><strong>Primary response (AUD):</strong>
+   $500,000 / $3,000,000 / $15,000,000</p>
+<p><strong>Secondary response (AUD):</strong>
+   $2,000,000 / $50,000,000 / $800,000,000</p>
+
+<div class="cta">
+  <strong>Want a calibrated probability for your operator?</strong>
+  <p class="meta">The atlas gives you a defensible prior. CyQuantiFi runs Monte Carlo against
+  your own asset inventory, refines the prior with calibrated expert input, and outputs ALE
+  in dollars — ready for a CIRMP or board paper.</p>
+  <a href="https://app.cyquantifi.com/import?scenario=HLT-009">Run HLT-009 in CyQuantiFi &rarr;</a>
+</div>
+
+<h2>Suggested controls</h2>
+<ul>
+<li><code>PR.DS-6</code> — Integrity checking on drug-to-bin mapping data <span class='meta'>(NIST-CSF)</span></li><li><code>CIRMP-CYBER-7</code> — Two-person rule for dispensing configuration changes <span class='meta'>(SOCI-CIRMP)</span></li><li><code>PR.AC-5</code> — Network segmentation isolating pharmacy automation <span class='meta'>(NIST-CSF)</span></li>
+</ul>
+
+<h2>References</h2>
+<ul><li>HC3 (US HHS) advisories on automated dispensing cabinets</li>
+<li>TGA Medical Device Cybersecurity Guidance</li>
+<li>ISMP medication safety and pharmacy automation publications</li>
+<li>ACSC, Annual Cyber Threat Report 2024-25 — health sector</li>
+<li>Australian Government, Security of Critical Infrastructure Act 2018, health care and medical asset class</li></ul>
+
+<p class="footer">
+  Version 1.0.0 · Last reviewed 2026-06-30 ·
+  Maintainers: @cyquantifi ·
+  MIT-licensed · Maintained by <a href="https://cyquantifi.com">CyQuantiFi Pty Ltd</a>
+</p>
+</body></html>

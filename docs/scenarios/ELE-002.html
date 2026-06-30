@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>ELE-002 — Distribution Management System ransomware halting outage restoration | SOCI Threat Atlas</title>
+<meta name="description" content="Ransomware encrypts the Distribution Management System (DMS) and outage- management workstations used by a distribution network operator. Field switching, resto">
+<style>
+  body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 860px; margin: 2em auto;
+         padding: 0 1em; color: #1f2937; background: #fafafa; }
+  h1 { color: #1f2937; border-bottom: 3px solid #FF8818; padding-bottom: .3em; }
+  h2 { color: #EA7A10; margin-top: 1.5em; }
+  .meta { color: #6b7280; font-size: .9em; }
+  .chip { display: inline-block; padding: 2px 10px; margin: 2px;
+          background: #fff7ed; color: #EA7A10; border: 1px solid #fed7aa;
+          border-radius: 12px; font-size: .85em; }
+  .chip.unscannable { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+  .cta { background: #fff; border: 2px solid #FF8818; border-radius: 8px;
+         padding: 1.2em; margin: 2em 0; }
+  .cta a { background: #FF8818; color: white; padding: .6em 1.2em;
+           text-decoration: none; border-radius: 6px; font-weight: 600;
+           display: inline-block; margin-top: .6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { text-align: left; padding: .5em; border-bottom: 1px solid #e5e7eb; }
+  th { background: #f3f4f6; }
+  code { background: #f3f4f6; padding: 1px 6px; border-radius: 3px;
+         font-family: 'SFMono-Regular', Consolas, monospace; font-size: .9em; }
+  pre { background: #f3f4f6; padding: 1em; border-radius: 6px; overflow-x: auto; }
+  .footer { color: #9ca3af; font-size: .85em; margin-top: 3em;
+            border-top: 1px solid #e5e7eb; padding-top: 1em; }
+</style>
+</head><body>
+<p class="meta"><a href="../index.html">&larr; SOCI Threat Atlas</a> · Sector: electricity ·
+  Asset class: electricity · TLP:CLEAR</p>
+<h1>ELE-002 · Distribution Management System ransomware halting outage restoration</h1>
+<p>Ransomware encrypts the Distribution Management System (DMS) and outage- management workstations used by a distribution network operator. Field switching, restoration coordination, and customer outage notifications fall back to manual or paper-based processes. Pattern matches the documented pressure on AU DNSPs during ransomware incidents 2022-2025 and CISA&#x27;s ongoing advisories on ransomware in the energy sector.
+</p>
+
+<h2>MITRE ATT&amp;CK mapping</h2>
+<p><strong>Tactics:</strong> <span class="chip">TA0001</span> <span class="chip">TA0008</span> <span class="chip">TA0040</span></p>
+<p><strong>Techniques:</strong> <span class="chip">T1566 Phishing</span> <span class="chip">T1486 Data Encrypted for Impact</span> <span class="chip">T1021 Remote Services</span></p>
+
+<h2>Nodes</h2>
+<table><thead><tr><th>ID</th><th>Type</th><th>Description</th><th>Criticality</th><th>Scannable?</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code></td><td>external</td><td>Ransomware-as-a-service affiliate</td><td>low</td><td><span class="chip">scannable</span></td></tr><tr><td><code>control_room_workstation</code></td><td>it_asset</td><td>Operator workstation in the network control room</td><td>high</td><td><span class="chip">scannable</span></td></tr><tr><td><code>dms_server</code></td><td>it_asset</td><td>Distribution Management System server cluster</td><td>critical</td><td><span class="chip">scannable</span></td></tr><tr><td><code>outage_management_system</code></td><td>it_asset</td><td>Outage Management System used to coordinate field restoration</td><td>critical</td><td><span class="chip">scannable</span></td></tr><tr><td><code>customer_notification_platform</code></td><td>it_asset</td><td>SMS and IVR systems for customer outage notifications</td><td>high</td><td><span class="chip">scannable</span></td></tr></tbody></table>
+
+<h2>Edges</h2>
+<table><thead><tr><th>From → To</th><th>Technique</th><th>Detection</th><th>Notes</th></tr></thead>
+<tbody><tr><td><code>external_attacker</code> → <code>control_room_workstation</code></td><td><code>T1566</code></td><td>medium</td><td></td></tr><tr><td><code>control_room_workstation</code> → <code>dms_server</code></td><td><code>T1021</code></td><td>high</td><td></td></tr><tr><td><code>dms_server</code> → <code>outage_management_system</code></td><td><code>T1486</code></td><td>low</td><td></td></tr><tr><td><code>dms_server</code> → <code>customer_notification_platform</code></td><td><code>T1486</code></td><td>low</td><td></td></tr></tbody></table>
+
+<h2>Priors (Beta-PERT)</h2>
+<p><strong>Annual frequency:</strong> min 0.02 · mode 0.1 · max 0.3</p>
+<p class="meta">DNSP control-room IT environments are within the standard ransomware blast radius. Mode anchored to disclosed AU and international DNSP incidents 2022-2025; max reflects increased ransomware velocity in the energy sector noted in ACSC and CISA reports.
+</p>
+<p><strong>Primary response (AUD):</strong>
+   $1,000,000 / $5,000,000 / $25,000,000</p>
+<p><strong>Secondary response (AUD):</strong>
+   $3,000,000 / $40,000,000 / $400,000,000</p>
+
+<div class="cta">
+  <strong>Want a calibrated probability for your operator?</strong>
+  <p class="meta">The atlas gives you a defensible prior. CyQuantiFi runs Monte Carlo against
+  your own asset inventory, refines the prior with calibrated expert input, and outputs ALE
+  in dollars — ready for a CIRMP or board paper.</p>
+  <a href="https://app.cyquantifi.com/import?scenario=ELE-002">Run ELE-002 in CyQuantiFi &rarr;</a>
+</div>
+
+<h2>Suggested controls</h2>
+<ul>
+<li><code>E8-BACKUPS</code> — Daily backups with offline copy and tested recovery <span class='meta'>(Essential-Eight)</span></li><li><code>PR.AC-5</code> — Segmentation between corporate and control networks <span class='meta'>(NIST-CSF)</span></li><li><code>AESCSF-MC-02</code> — Manual fallback procedures for DMS and OMS <span class='meta'>(AESCSF)</span></li>
+</ul>
+
+<h2>References</h2>
+<ul><li>ACSC, Annual Cyber Threat Report 2024-25 — energy sector</li>
+<li>CISA energy sector advisories 2022-2025</li>
+<li>Australian Energy Sector Cyber Security Framework (AESCSF), AEMO</li>
+<li>AER Guaranteed Service Levels and Customer Service Standards</li>
+<li>Australian Government, Security of Critical Infrastructure Act 2018, electricity asset class</li></ul>
+
+<p class="footer">
+  Version 1.0.0 · Last reviewed 2026-06-30 ·
+  Maintainers: @cyquantifi ·
+  MIT-licensed · Maintained by <a href="https://cyquantifi.com">CyQuantiFi Pty Ltd</a>
+</p>
+</body></html>
